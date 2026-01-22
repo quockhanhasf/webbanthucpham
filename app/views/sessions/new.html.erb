@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ĐĂNG NHẬP & ĐĂNG KÝ</title>
+  <%= stylesheet_link_tag 'sessions', media: 'all' %>
+  <%= javascript_include_tag 'application' %>
+  <%= csrf_meta_tags %>
+  <style>
+    .form-container { display: none; }
+    .form-container.active { display: block; }
+    .header { /* Thuộc tính CSS cho header nếu cần */ }
+    .form-group { margin-bottom: 15px; }
+  </style>
+</head>
+<body>
+<div id="login_form">
+  <% if flash[:alert] %>
+    <div class="alert alert-danger">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
+
+  <div class="header">
+    <div class="header-main">
+      <div class="header-bottom">
+        <div class="header-right w3agile">
+          <div class="header-left-bottom agileinfo">
+
+            <!-- Form Đăng Nhập -->
+            <div id="login-form" class="form-container active">
+              <h2>ĐĂNG NHẬP</h2>
+              <%= form_with(url: login_path, method: :post, local: true) do |form| %>
+                <div class="form-group">
+                  <%= form.text_field :username, placeholder: "Tài khoản", class: "form-control" %>
+                </div>
+                <div class="form-group">
+                  <%= form.password_field :pass, placeholder: "Mật khẩu", class: "form-control" %>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <input type="checkbox" data-toggle="password" data-target="login-password" class="ce"> Hiển thị mật khẩu
+                  </label>
+                </div>
+                <div class="remember">
+                  <%= link_to "Đăng kí", "#", class: "register-button", onclick: "showRegisterForm()" %>
+                  <div class="forgot">
+                    <%= link_to "Quên mật khẩu?", "#", class: "forgot",  onclick: "showForgotPasswordForm()" %>
+                  </div>
+                  <div class="clear"></div>
+                </div>
+                <%= form.submit "Login", class: "btn btn-primary" %>
+              <% end %>
+            </div>
+
+            <!-- Form Đăng Ký -->
+            <div id="register-form" class="form-container">
+              <h2>ĐĂNG KÍ</h2>
+              <%= form_with(url: register_path, method: :post, local: true, data: { turbo: false }) do |form| %>
+                <div class="form-group">
+                  <%= form.text_field :hoten, name: "user[hoten]", placeholder: "Họ tên", class: "form-control" %>
+                </div>
+                <div class="form-group">
+                  <%= form.text_field :username, name: "user[username]", placeholder: "Tài khoản", class: "form-control" %>
+                </div>
+                <div class="form-group">
+                  <%= form.password_field :pass, name: "user[pass]", placeholder: "Mật khẩu", class: "form-control" %>
+                </div>
+                <div class="form-group">
+                  <%= form.password_field :password_confirmation, name: "user[password_confirmation]", placeholder: "Xác nhận mật khẩu", class: "form-control" %>
+                </div>
+                <div class="form-group">
+                  <%= form.email_field :email, name: "user[email]", placeholder: "Địa chỉ Email", class: "form-control" %>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <input type="checkbox" data-toggle="password" data-target="login-password" class="ce"> Hiển thị mật khẩu
+                  </label>
+                </div>
+                <%= form.submit "Đăng kí", class: "btn btn-primary", onclick: "submitRegisterForm(); return false;" %>
+                <%= link_to "Đã có tài khoản? Đăng nhập", "#", class: "login-button", onclick: "showLoginForm()" %>
+              <% end %>
+            </div>
+
+            <!-- Mã xác nhận -->
+            <div id="verification-code-section" style="display: none;">
+              <p>Đã gửi mã xác nhận đến email của bạn. Vui lòng kiểm tra và nhập mã xác nhận:</p>
+              <input type="text" id="verificationCode" placeholder="Mã xác nhận" class="form-control" />
+              <button onclick="submitVerificationCode()" class="btn btn-primary">Xác nhận</button>
+            </div>
+
+            <!-- Form Quên Mật Khẩu -->
+            <div id="forgot-password-form" class="form-container">
+              <h2>QUÊN MẬT KHẨU</h2>
+              <!-- Bước 1: Nhập tài khoản và email -->
+              <div id="step-1">
+                <div class="form-group">
+                  <input type="text" id="forgot-username" placeholder="Tài khoản" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <input type="email" id="forgot-email" placeholder="Địa chỉ Email" class="form-control" />
+                </div>
+                <button onclick="submitForgotPassword()" class="btn btn-primary">Gửi mã xác nhận</button>
+                <%= link_to "Quay lại", "#", class: "login-button", onclick: "showLoginForm()" %>
+              </div>
+
+              <!-- Bước 2: Nhập mã xác nhận -->
+              <div id="step-2" style="display: none;">
+                <p class = "p1">Mã xác nhận đã được gửi đến email của bạn. Vui lòng kiểm tra và nhập mã:</p>
+                <div class="form-group">
+                  <input type="text" id="reset-verification-code" placeholder="Mã xác nhận" class="form-control" />
+                </div>
+                <button onclick="verifyForgotCode()" class="btn btn-primary">Xác nhận mã</button>
+              </div>
+
+              <!-- Bước 3: Nhập mật khẩu mới -->
+              <div id="step-3" style="display: none;">
+                <p class="p1">Nhập mật khẩu mới:</p>
+                <div class="form-group">
+                  <input type="password" id="new-password" placeholder="Mật khẩu mới" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <input type="password" id="confirm-password" placeholder="Xác nhận mật khẩu mới" class="form-control" />
+                </div>
+                <button onclick="resetPassword()" class="btn btn-primary">Đổi mật khẩu</button>
+              </div>
+            </div>
+
+            
+
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Hiển thị form đăng ký
+  function showRegisterForm() {
+    document.getElementById('login-form').classList.remove('active');
+    document.getElementById('register-form').classList.add('active');
+  }
+
+  // Hiển thị form đăng nhập
+  function showLoginForm() {
+    document.getElementById('register-form').classList.remove('active');
+    document.getElementById('login-form').classList.add('active');
+    document.getElementById('forgot-password-form').classList.remove('active');
+  }
+
+  // Gửi form đăng ký
+  function submitRegisterForm() {
+    const username = document.querySelector('[name="user[username]"]').value.trim();
+    const password = document.querySelector('[name="user[pass]"]').value.trim();
+    const email = document.querySelector('[name="user[email]"]').value.trim();
+    const hoten = document.querySelector('[name="user[hoten]"]').value.trim();
+
+    fetch('/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({
+        user: { username: username, pass: password, email: email, hoten: hoten }
+      })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message === 'Đã gửi email xác nhận!') {
+          document.getElementById('verification-code-section').style.display = 'block';
+        } else {
+          alert(data.errors.join(", "));
+        }
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+  // Gửi mã xác nhận đăng ký
+  function submitVerificationCode() {
+    const code = document.getElementById('verificationCode').value.trim();
+
+    fetch('/verify_registration_code', { // Đổi endpoint cho rõ ràng
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({ code: code })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message) {
+          alert(data.message);
+          window.location.href = '/trangchu';
+        } else {
+          alert(data.error);
+        }
+      })
+      .catch(error => console.error('Error:', error));
+  }
+
+  // Hiển thị form quên mật khẩu
+  function showForgotPasswordForm() {
+    document.getElementById('login-form').classList.remove('active');
+    document.getElementById('forgot-password-form').classList.add('active');
+  }
+
+  // Gửi yêu cầu mã xác nhận quên mật khẩu
+  function submitForgotPassword() {
+    const username = document.getElementById("forgot-username").value.trim();
+    const email = document.getElementById("forgot-email").value.trim();
+
+    fetch('/forgot_password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({ username: username, email: email })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message) {
+          alert(data.message);
+          document.getElementById("step-1").style.display = "none";
+          document.getElementById("step-2").style.display = "block";
+        } else {
+          alert(data.error);
+        }
+      })
+      .catch(error => console.error("Error:", error));
+  }
+
+  // Xác nhận mã quên mật khẩu
+  // Xác nhận mã quên mật khẩu
+function verifyForgotCode() {
+  const code = document.getElementById("reset-verification-code").value.trim();
+
+  fetch('/verify_forgot_code', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    },
+    body: JSON.stringify({ code: code })
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.message) {
+        alert(data.message);
+        document.getElementById("step-2").style.display = "none"; // Ẩn bước nhập mã
+        document.getElementById("step-3").style.display = "block"; // Hiển thị bước nhập mật khẩu mới
+      } else {
+        alert(data.error);
+      }
+    })
+    .catch(error => console.error("Error:", error));
+}
+
+
+  // Đặt lại mật khẩu mới
+  function resetPassword() {
+    const newPassword = document.getElementById("new-password").value.trim();
+
+    fetch('/reset_password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: JSON.stringify({ password: newPassword })
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.message) {
+          alert(data.message);
+          window.location.href = "/trangchu";
+        } else {
+          alert(data.error);
+        }
+      })
+      .catch(error => console.error("Error:", error));
+  }
+
+ document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll('[data-toggle="password"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const targetId = this.dataset.target;
+      const passwordField = document.getElementById(targetId);
+      if (passwordField) {
+        passwordField.type = this.checked ? "text" : "password";
+      }
+    });
+  });
+});
+
+
+
+</script>
+
+</body>
+</html>

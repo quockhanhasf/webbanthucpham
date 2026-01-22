@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giỏ hàng</title>
+  <%= csrf_meta_tags %>
+  <%= stylesheet_link_tag 'order', media: 'all' %>
+  <style>
+    .payment-rowa{
+      display: none;
+    }
+
+    .pa{
+     
+    }
+  </style>
+</head>
+<body>
+  <div class="al">
+  <h1>Đặt hàng</h1>
+
+  <!-- Hiển thị sản phẩm trong giỏ hàng -->
+  <% if @products.present? %>
+    <table>
+      <thead>
+        <tr>
+          <th>Sản phẩm</th>
+          <th>Số lượng</th>
+          <th>Đơn giá</th>
+          <th>Thành tiền</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @products.each do |item| %>
+          <% product = item[:product] %>
+          <% quantity = item[:quantity] %>
+          <% if product.present? %>
+            <tr>
+              <td>
+                <div class="sps">
+                  <%= image_tag product.hinhanh, alt: product.ten, width: 100 %>
+                </div>
+                <div class="sps" id="tensp">
+                  <%= product.ten %>
+                </div>
+              </td>
+              <td id="soluongsp"><%= "#{quantity.to_i} #{product.donvi}" %></td>
+              <td id="giasp"><%= CurrencyFormatter.format_vnd(product.gia) %></td>
+              <td id="tongtien"><%= CurrencyFormatter.format_vnd(product.gia * quantity) %></td>
+            </tr>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+
+    <p class="tc">
+      Tổng số tiền: 
+      <%= CurrencyFormatter.format_vnd(@products.sum { |item| item[:product]&.gia.to_i * item[:quantity].to_i }) %>
+    </p>
+  <% else %>
+    <p>Không có sản phẩm nào được chọn.</p>
+  <% end %>
+
+  <!-- Form nhập thông tin giao hàng -->
+  
+  <form action="/cart/order" method="post">
+    <h2>Thông tin giao hàng</h2>
+    <%= csrf_meta_tags %>
+
+    <!-- Nhập họ tên -->
+    <div>
+      <label for="fullname">Họ và tên:</label>
+      <input type="text" id="fullname" name="fullname" placeholder="Nhập họ và tên" 
+        value="<%= @current_user&.hoten %>" required class="c">
+         
+    </div>
+
+
+    <!-- Nhập số điện thoại -->
+    <div>
+      <label for="phone">Số điện thoại:</label>
+      <input type="tel" id="phone" name="phone" placeholder="Nhập số điện thoại" required pattern="[0-9]{10}" class="c">
+    </div>
+
+<!-- Nhập số điện thoại -->
+    <div>
+      <label for="email">Email:</label>
+      <input type="text" id="email" name="email" placeholder="Nhập địa chỉ Email" class="em">
+    </div>
+
+    <!-- Listbox chọn tỉnh/thành -->
+    <div>
+        <label for="province">Tỉnh/Thành phố:</label>
+        <select id="province" name="province" required>
+            <option value="">Chọn tỉnh/thành phố</option>
+            
+        </select>
+    </div>
+
+    <!-- Listbox chọn quận/huyện -->
+    <div>
+      <label for="district">Quận/Huyện:</label>
+      <select id="district" name="district" required>
+        <option value="">Chọn quận/huyện</option>
+      </select>
+    </div>
+
+    <!-- Listbox chọn phường/xã -->
+    <div>
+      <label for="ward">Phường/Xã:</label>
+      <select id="ward" name="ward" required>
+        <option value="">Chọn phường/xã</option>
+      </select>
+    </div>
+
+    <!-- Nhập địa chỉ cụ thể -->
+    <div>
+      <label for="address">Địa chỉ cụ thể:</label>
+      <input type="text" id="address" name="address" placeholder="Nhập số nhà, tên đường" required class="c">
+    </div>
+
+   <!-- Phương thức vận chuyển -->
+  <h2>Phương thức vận chuyển</h2>
+  <div class="shipping-methods">
+    <!-- Hoả tốc -->
+    <button type="button" class="shipping-option active" data-cost="30000" data-method="Hoả tốc" <%= @payment_status == 'success' ? 'disabled' : '' %>>
+      <div class="shipping-content">
+        <div class="method-header">
+          <span><strong>Hoả tốc</strong></span>
+          <span>30,000 VNĐ</span>
+        </div>
+        <div class="method-description">
+          <p class="f">Đảm bảo nhận hàng trong vòng 30 phút hoặc sớm hơn.</p>
+          <p class="f">Đảm bảo nhận hàng trong vòng 1 ngày hoặc trễ hơn nếu khác khu vực.</p>
+        </div>
+      </div>
+    </button>
+
+    <!-- Tiết kiệm -->
+    <button type="button" class="shipping-option" data-cost="15000" data-method="Tiết kiệm" <%= @payment_status == 'success' ? 'disabled' : '' %>>
+      <div class="shipping-content">
+        <div class="method-header">
+          <span><strong>Tiết kiệm</strong></span>
+          <span>15,000 VNĐ</span>
+        </div>
+        <div class="method-description">
+          <p class="f">Đảm bảo nhận hàng trong vòng 1 tiếng hoặc sớm hơn.</p>
+          <p class="f">Đảm bảo nhận hàng trong vòng 2 ngày hoặc trễ hơn nếu khác khu vực.</p>
+        </div>
+      </div>
+    </button>
+  </div>
+
+    <!-- Input ẩn để lưu giá trị phương thức vận chuyển -->
+    <input type="hidden" id="shipping_cost" name="shipping_cost" value="30000">
+    <input type="hidden" id="shipping_method" name="shipping_method" value="Hoả tốc">
+
+
+    <h2>Phương thức thanh toán</h2>
+    <div class="payment-methods">
+      <!-- Thanh toán khi nhận hàng -->
+      <button type="button" class="payment-option active" data-method="Thanh toán khi nhận hàng" <%= @payment_status == 'success' ? 'disabled' : '' %>>
+        <div class="payment-content">
+          <div class="method-header">
+            <span><strong>Thanh toán khi nhận hàng</strong></span>
+          </div>
+          <div class="method-description">
+            <p>Thanh toán bằng tiền mặt khi hàng được giao đến tay bạn.</p>
+          </div>
+        </div>
+      </button>
+
+      <!-- Thanh toán MoMo -->
+      <button type="button" id="momo_payment_link" class="payment-option <%= @payment_status == 'success' ? 'disabled' : '' %>" data-method="Thanh toán MoMo">
+        <div class="payment-content">
+          <div class="method-header">
+            <span><strong>Thanh toán MoMo</strong></span>
+          </div>
+          <div class="method-description">
+            <p>Thanh toán qua mã QR, thẻ tín dụng, chuyển khoản, hoặc ví MoMo.</p>
+          </div>
+        </div>
+      </button>
+    </div>
+
+
+    <!-- Input ẩn để lưu giá trị phương thức thanh toán -->
+    <input type="hidden" id="payment_method" name="payment_method" value="Thanh toán khi nhận hàng">
+
+      
+    <!-- Chi tiết thanh toán -->
+    <h2>Chi tiết thanh toán</h2>
+    <div class="payment-details">
+      <div class="payment-row">
+        <span class="label">Tổng tiền hàng:</span>
+        <span class="value" id="total_products">
+          <%= CurrencyFormatter.format_vnd(@products.sum { |item| item[:product].gia * item[:quantity] }) %>
+        </span>
+      </div>
+      <div class="payment-row">
+        <span class="label">Tổng phí vận chuyển:</span>
+        <span class="value" id="total_shipping">
+          <%= CurrencyFormatter.format_vnd(30000) %> <!-- Mặc định là 30,000 VNĐ -->
+        </span>
+      </div>
+      
+      <div class="payment-row total">
+        <span class="label">Trạng thái thanh toán:</span>
+        <span class="value" id="payment_status" style="color: <%= @payment_status == 'success' ? 'green' : 'red' %>;">
+          <%= @payment_status == 'success' ? 'Đã thanh toán' : 'Chưa thanh toán' %>
+        </span>
+      </div>
+
+
+      <div class="payment-rowa">
+        <span class="label">Trạng thái:</span>
+        <span class="value" id="trangthai" style="color: red;">Chờ xác nhận</span>
+      </div>
+
+      <div class="payment-row total">
+        <span class="label">Tổng thanh toán:</span>
+        <span class="value" id="total_payment">
+          <%= CurrencyFormatter.format_vnd(
+            @products.sum { |item| item[:product].gia * item[:quantity] } + 30000
+          ) %>
+        </span>
+      </div>
+    </div>
+
+  
+
+
+
+
+
+  <!-- Modal kiểm tra  -->
+<div id="checkInfoModal" class="modal">
+  <div class="modal-contentt">
+    <span class="close">&times;</span>
+    <h2>Thông tin đặt hàng</h2>
+    <p><strong>Họ và tên:</strong> <span id="fullnameModal"></span></p>
+    <p><strong>Số điện thoại:</strong> <span id="phoneModal"></span></p>
+    <p><strong>Email:</strong> <span id="emailModal"></span></p>
+    <p><strong>Tỉnh/Thành phố:</strong> <span id="provinceModal"></span></p>
+    <p><strong>Quận/Huyện:</strong> <span id="districtModal"></span></p>
+    <p><strong>Phường/Xã:</strong> <span id="wardModal"></span></p>
+    <p><strong>Địa chỉ cụ thể:</strong> <span id="addressModal"></span></p>
+    <p><strong>Sản phẩm:</strong><br><pre id="productDetailsModal"></pre></p> <!-- Hiển thị danh sách sản phẩm ở đây -->
+    <p><strong>Trạng thái thanh toán:</strong> <span id="paymentStatusModal"></span></p>
+    <p><strong>Tổng thanh toán: </strong><span id="totalPaymentModal"></span></p> <!-- Hiển thị danh sách sản phẩm ở đây -->
+    <p class="pa"><strong>Trạng thái: </strong><span id="trangthaiModal"></span></p> 
+    <button type="button" class="order-button" id="orderButton">Xác nhận</button>
+  </div>
+</div>
+
+
+
+
+   <!-- Nút xác nhận đặt hàng -->
+    
+    <button type="button" class="check-button" id="checkButton">Đặt hàng</button>
+    
+  </form>
+  
+
+  
+</div>
+
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+  <script src="<%= asset_path 'apiprovince.js' %>"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+
+<script>
+  ////THANH TOÁN
+ document.getElementById("momo_payment_link").addEventListener("click", function (e) {
+  e.preventDefault(); // Ngăn chặn hành vi mặc định
+
+  // Lấy giá trị payment_total từ giao diện
+  let totalElement = document.getElementById("total_payment");
+  let totalValue = totalElement.textContent.trim();
+
+  // Chuyển đổi số tiền từ chuỗi sang số nguyên (loại bỏ ký tự không phải số)
+  let amount = parseInt(totalValue.replace(/[^0-9]/g, ''), 10);
+
+  if (isNaN(amount) || amount <= 0) {
+    alert("Số tiền không hợp lệ!");
+    return;
+  }
+
+  // Chuyển hướng tới thanh_toan_path với amount
+  let thanhToanUrl = `/thanh_toan?amount=${amount}`;
+  window.location.href = thanhToanUrl;
+});
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Disable buttons with 'disabled' attribute
+  const buttons = document.querySelectorAll(".shipping-option[disabled], .payment-option[disabled]");
+  buttons.forEach((button) => {
+    button.addEventListener("click", function (event) {
+      event.preventDefault(); // Ngăn hành vi mặc định
+      alert("Chức năng này đã bị vô hiệu hóa do trạng thái thanh toán thành công.");
+    });
+  });
+
+  // Disable links with 'disabled' class
+  const disabledLinks = document.querySelectorAll("a.payment-option.disabled");
+  disabledLinks.forEach((link) => {
+    link.addEventListener("click", function (event) {
+      event.preventDefault(); // Ngăn hành vi mặc định
+      alert("Chức năng này đã bị vô hiệu hóa do trạng thái thanh toán thành công.");
+    });
+  });
+});
+
+
+
+
+
+
+
+
+
+
+////////////
+  document.addEventListener("DOMContentLoaded", () => {
+    const shippingOptions = document.querySelectorAll(".shipping-option");
+
+    shippingOptions.forEach((option) => {
+      option.addEventListener("click", (e) => {
+        // Loại bỏ trạng thái active khỏi tất cả các button
+        shippingOptions.forEach((btn) => btn.classList.remove("active"));
+
+        // Gán trạng thái active cho button được chọn
+        e.currentTarget.classList.add("active");
+
+        // Cập nhật giá trị vào input ẩn
+        const shippingCost = e.currentTarget.getAttribute("data-cost");
+        const shippingMethod = e.currentTarget.getAttribute("data-method");
+
+        document.getElementById("shipping_cost").value = shippingCost;
+        document.getElementById("shipping_method").value = shippingMethod;
+      });
+    });
+  });
+
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Xử lý phương thức vận chuyển
+    const shippingOptions = document.querySelectorAll(".shipping-option");
+
+    shippingOptions.forEach((option) => {
+      option.addEventListener("click", (e) => {
+        shippingOptions.forEach((btn) => btn.classList.remove("active"));
+        e.currentTarget.classList.add("active");
+        document.getElementById("shipping_cost").value = e.currentTarget.getAttribute("data-cost");
+        document.getElementById("shipping_method").value = e.currentTarget.getAttribute("data-method");
+      });
+    });
+
+    // Xử lý phương thức thanh toán
+    const paymentOptions = document.querySelectorAll(".payment-option");
+
+    paymentOptions.forEach((option) => {
+      option.addEventListener("click", (e) => {
+        paymentOptions.forEach((btn) => btn.classList.remove("active"));
+        e.currentTarget.classList.add("active");
+        document.getElementById("payment_method").value = e.currentTarget.getAttribute("data-method");
+      });
+    });
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const shippingOptions = document.querySelectorAll(".shipping-option");
+    const totalShipping = document.getElementById("total_shipping");
+    const totalProducts = document.getElementById("total_products");
+    const totalPayment = document.getElementById("total_payment");
+
+    const calculateTotal = () => {
+      const productTotal = parseInt(totalProducts.getAttribute("data-total"), 10);
+      const shippingCost = parseInt(totalShipping.getAttribute("data-cost"), 10);
+      const grandTotal = productTotal + shippingCost;
+      totalPayment.textContent = grandTotal.toLocaleString() + " VNĐ";
+    };
+
+    shippingOptions.forEach((option) => {
+      option.addEventListener("click", (e) => {
+        // Lấy phí vận chuyển từ button được chọn
+        const shippingCost = parseInt(e.currentTarget.getAttribute("data-cost"), 10);
+
+        // Cập nhật chi tiết phí vận chuyển
+        totalShipping.textContent = shippingCost.toLocaleString() + " VNĐ";
+        totalShipping.setAttribute("data-cost", shippingCost);
+
+        // Tính lại tổng thanh toán
+        calculateTotal();
+      });
+    });
+
+    // Gắn giá trị mặc định cho tổng tiền sản phẩm và phí vận chuyển
+    totalProducts.setAttribute(
+      "data-total",
+      parseInt(totalProducts.textContent.replace(/[^0-9]/g, ""), 10)
+    );
+    totalShipping.setAttribute(
+      "data-cost",
+      parseInt(totalShipping.textContent.replace(/[^0-9]/g, ""), 10)
+    );
+  });
+
+
+  // document.addEventListener("DOMContentLoaded", () => {
+  //   const modal = document.getElementById("paymentModal");
+  //   const closeModal = document.querySelector(".close");
+  //   const paymentButton = document.getElementById("paymentSuccess");
+  //   const paymentStatus = document.getElementById("payment_status");
+  //   //const paymentOptionDirect = document.getElementById("direct_payment_option"); // Nút chọn thanh toán trực tiếp
+
+  //   // Mở modal khi chọn thanh toán trực tiếp
+  //   // paymentOptionDirect.addEventListener("click", () => {
+  //   //   modal.style.display = "block";
+  //   // });
+
+  //   // Đóng modal
+  //   closeModal.addEventListener("click", () => {
+  //     modal.style.display = "none";
+  //   });
+
+  //   // Khi thanh toán thành công
+  //   paymentButton.addEventListener("click", () => {
+  //     modal.style.display = "none";
+  //     paymentStatus.textContent = "Đã thanh toán";
+  //     paymentStatus.style.color = "green";
+  //   });
+
+  //   // Đóng modal khi nhấn ngoài modal
+  //   window.addEventListener("click", (event) => {
+  //     if (event.target === modal) {
+  //       modal.style.display = "none";
+  //     }
+  //   });
+  // });
+
+  
+  document.addEventListener("DOMContentLoaded", function () {
+    const queryParams = new URLSearchParams(window.location.search);
+    const paymentStatus = queryParams.get("payment_status");
+
+    if (paymentStatus === "success") {
+      const statusElement = document.getElementById("trangthaithanhtoan");
+      statusElement.textContent = "Đã thanh toán";
+      statusElement.style.color = "green"; // Thay đổi màu chữ
+    }
+  });
+
+
+
+
+
+
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const checkButton = document.getElementById("checkButton");
+    const checkInfoModal = document.getElementById("checkInfoModal");
+    const closeModal = document.querySelector(".close");
+
+    // Khi nhấn nút "Kiểm tra"
+    checkButton.addEventListener("click", (event) => {
+      event.preventDefault(); // Ngăn chặn form submit
+
+      // Lấy các giá trị từ form
+      const fullname = document.getElementById("fullname").value;
+      const phone = document.getElementById("phone").value;
+      const email = document.getElementById("email").value;
+      const province = document.getElementById("province").value;
+      const district = document.getElementById("district").value;
+      const ward = document.getElementById("ward").value;
+      const address = document.getElementById("address").value;
+      const payment_status = document.getElementById("payment_status").textContent.trim();
+      const trangthai = document.getElementById("trangthai").textContent.trim();
+      
+      const total_payment = document.getElementById("total_payment").value;
+      
+      
+
+      // Lấy các sản phẩm từ bảng
+      const products = document.querySelectorAll("table tbody tr");
+
+      // Tạo chuỗi để chứa thông tin sản phẩm, thêm tiêu đề một lần duy nhất
+      let productDetails = '';
+
+      // Duyệt qua tất cả các sản phẩm và lấy thông tin
+      products.forEach((productRow) => {
+        // Lấy tên sản phẩm
+        const productNameElement = productRow.querySelector("#tensp");
+        const productName = productNameElement ? productNameElement.textContent.trim() : '';
+
+        // Lấy số lượng và đơn vị
+        const quantityCell = productRow.querySelector("#soluongsp");
+        const quantity = quantityCell ? quantityCell.textContent.trim() : '';
+
+        // Lấy giá sản phẩm
+        const priceCell = productRow.querySelector("#giasp");
+        const price = priceCell ? priceCell.textContent.trim() : '';
+
+        // Lấy tổng tiền sản phẩm
+        const totalPriceCell = productRow.querySelector("#tongtien");
+        const totalPrice = totalPriceCell ? totalPriceCell.textContent.trim() : '';
+
+        // Nếu sản phẩm hợp lệ (có tên), thêm vào chuỗi chi tiết
+        if (productName) {
+          productDetails += `Tên sản phẩm: ${productName.padEnd(10)} Số lượng: ${quantity.padEnd(10)} Giá: ${price.padEnd(17)} Tổng tiền: ${totalPrice}\n`;
+        }
+      });
+
+
+      // Lấy tổng thanh toán
+      const totalPaymentElement = document.getElementById("total_payment");
+      const totalPayment = totalPaymentElement ? totalPaymentElement.textContent : '0';
+
+      // Hiển thị thông tin trong modal
+      document.getElementById("fullnameModal").innerText = fullname;
+      document.getElementById("phoneModal").innerText = phone;
+      document.getElementById("emailModal").innerText = email;
+      document.getElementById("provinceModal").innerText = province;
+      document.getElementById("districtModal").innerText = district;
+      document.getElementById("wardModal").innerText = ward;
+      document.getElementById("addressModal").innerText = address;
+      document.getElementById("productDetailsModal").innerText = productDetails; // Hiển thị thông tin tất cả sản phẩm
+      document.getElementById("paymentStatusModal").innerText = payment_status;  // Cập nhật trạng thái thanh toán
+      document.getElementById("totalPaymentModal").innerText = totalPayment;
+      document.getElementById("trangthaiModal").innerText = trangthai;
+      
+    // Hiển thị modal
+    checkInfoModal.style.display = "block";
+  });
+
+  // Đóng modal
+  closeModal.addEventListener("click", () => {
+    checkInfoModal.style.display = "none";
+  });
+
+  // Đóng modal khi nhấn ra ngoài modal
+  window.addEventListener("click", (event) => {
+    if (event.target === checkInfoModal) {
+      checkInfoModal.style.display = "none";
+    }
+  });
+});
+
+
+
+
+
+document.getElementById('orderButton').addEventListener('click', function () {
+  // Thu thập dữ liệu từ modal
+  const fullname = document.getElementById('fullnameModal').textContent.trim();
+  const phone = document.getElementById('phoneModal').textContent.trim();
+  const email = document.getElementById('emailModal').textContent.trim();
+  const province = document.getElementById('provinceModal').textContent.trim();
+  const district = document.getElementById('districtModal').textContent.trim();
+  const ward = document.getElementById('wardModal').textContent.trim();
+  const specificAddress = document.getElementById('addressModal').textContent.trim();
+  const paymentStatus = document.getElementById('paymentStatusModal').textContent.trim();
+  const trangthai = document.getElementById('trangthaiModal').textContent.trim();
+
+  // Gộp địa chỉ
+  const address = `${specificAddress}, ${ward}, ${district}, ${province}`;
+
+  // Kiểm tra thông tin và tổng thanh toán hợp lệ
+  let totalPayment = document.getElementById('totalPaymentModal').textContent.replace(/[^0-9]/g, '');
+  totalPayment = parseInt(totalPayment);
+
+  if (isNaN(totalPayment)) {
+    alert('Tổng thanh toán không hợp lệ!');
+    return;
+  }
+
+  // Lấy các sản phẩm từ bảng
+  const products = document.querySelectorAll("table tbody tr");
+  let productDetails = [];
+
+  products.forEach((productRow) => {
+    const productNameElement = productRow.querySelector("#tensp");
+    const quantityElement = productRow.querySelector("#soluongsp");
+
+    if (productNameElement && quantityElement) {
+      const productName = productNameElement.textContent.trim();
+      const quantity = quantityElement.textContent.trim();
+
+      if (productName && quantity) {
+        productDetails.push(`${productName} ${quantity}`);
+      }
+    }
+  });
+
+  if (productDetails.length === 0) {
+    alert('Không có sản phẩm hợp lệ!');
+    return;
+  }
+
+  // Tạo object orderData
+  const orderData = {
+    hoten: fullname,
+    sdt: phone,
+    email: email,
+    diachi: address,
+    trangthaithanhtoan: paymentStatus,
+    tongthanhtoan: totalPayment,
+    trangthai: trangthai,
+    ngaydathang: new Date().toISOString(),
+    thongtinsanpham: productDetails.join(', ').trim(),
+  };
+
+  // Gửi dữ liệu qua AJAX
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  fetch('/donhangs', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': csrfToken,
+    },
+    body: JSON.stringify(orderData),
+  })
+    .then(response => {
+      if (!response.ok) {
+        return response.text().then(text => {
+          console.error('Server error:', text);
+          throw new Error(`HTTP error! status: ${response.status}`);
+        });
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Đặt hàng thành công:', data);
+      alert('Đặt hàng thành công!');
+      // Chuyển hướng về trang chủ
+      window.location.href = '/';
+    })
+    .catch(error => {
+      console.error('Lỗi khi đặt hàng:', error);
+      alert('Có lỗi xảy ra khi đặt hàng.');
+    });
+});
+
+
+</script>
+
+</body>
+</html>

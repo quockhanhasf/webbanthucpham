@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nhắn Tin</title>
+  <%= csrf_meta_tags %>
+  <%= stylesheet_link_tag 'mess', media: 'all' %>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+</head>
+<body>
+  <div class="messages-container">
+  <% if current_user.quyen == "admin" %>
+    <div class="admin-container">
+      <%= link_to 'Quay lại', root_path, class: 'back-button action-button' %>
+      <h2>Chat</h2>
+      
+      <div class="user-list">
+        <ul>
+          <% @users.each do |user| %>
+            <% unread_count = @unread_counts[user.id] || 0 %>
+            <li class="<%= 'active' if @selected_user == user %>">
+              <%= link_to user.hoten, messages_path(user_id: user.id), class: "user-link" %>
+              <% if unread_count > 0 %>
+                <span class="badge"><%= unread_count %></span>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+
+      <div class="messages-detail">
+        <% if @selected_user %>
+          <h3>Tin nhắn với <%= @selected_user.hoten %></h3>
+          <div class="chat-box">
+            <% @messages.each do |message| %>
+              <div class="message <%= message.sender == current_user ? 'from-user' : 'from-admin' %>">
+                <p>
+                  <strong><%= message.sender == current_user ? 'Bạn' : @selected_user.hoten %>:</strong>
+                  <%= message.content %>
+                </p>
+                <% if message.image.attached? %>
+                  <p>
+                    <%= image_tag message.image, class: "message-image", alt: "Đính kèm" %>
+                  </p>
+                <% end %>
+                <small><%= message.created_at.strftime('%H:%M %d-%m-%Y') %></small>
+              </div>
+            <% end %>
+          </div>
+
+          <%= form_with model: @message, url: messages_path(recipient_id: @selected_user.id), local: true do |f| %>
+            <div class="message-input-group">
+              <div class="text-area-container">
+                <%= f.text_area :content, placeholder: "Nhập tin nhắn...", rows: 3, required: true, class: "message-text-area" %>
+              </div>
+              <div class="actions-container">
+                <!-- Nút chọn hình ảnh -->
+                <label for="<%= f.object_name %>_image" class="upload-icon">
+                  <i class="fas fa-paperclip"></i>
+                </label>
+                <%= f.file_field :image, accept: "image/*", class: "file-input", id: "#{f.object_name}_image", style: "display: none;" %>
+                <!-- Vùng xem trước hình ảnh -->
+                <div id="image-preview" class="image-preview"></div>
+                <!-- Nút gửi -->
+                <%= f.submit "Gửi", class: "btn btn-primary send-button" %>
+              </div>
+            </div>
+
+          <% end %>
+        <% else %>
+          
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="user-container">
+      <%= link_to 'Quay lại', root_path, class: 'back-button action-button' %>
+      <h2 class="d">Hỗ trợ - Gửi tin nhắn đến Admin</h2>
+      <div class="chat-box">
+        <% if @messages.any? %>
+          <% @messages.each do |message| %>
+            <div class="message <%= message.sender == current_user ? 'from-user' : 'from-admin' %>">
+              <p>
+                <strong><%= message.sender == current_user ? 'Bạn' : 'Admin' %>:</strong>
+                <%= message.content %>
+              </p>
+                <% if message.image.attached? %>
+                  <p>
+                    <%= image_tag message.image, class: "message-image", alt: "Đính kèm" %>
+                  </p>
+                <% end %>
+              <small><%= message.created_at.strftime('%H:%M %d-%m-%Y') %></small>
+            </div>
+          <% end %>
+        <% else %>
+          <p>Chưa có tin nhắn nào. Hãy gửi tin nhắn đầu tiên!</p>
+        <% end %>
+      </div>
+      <%= form_with model: @message, url: messages_path, local: true do |f| %>
+        <div class="message-input-group">
+              <div class="text-area-container">
+                <%= f.text_area :content, placeholder: "Nhập tin nhắn...", rows: 3, required: true, class: "message-text-area" %>
+              </div>
+              <div class="actions-container">
+                <!-- Nút chọn hình ảnh -->
+                <label for="<%= f.object_name %>_image" class="upload-icon">
+                  <i class="fas fa-paperclip"></i>
+                </label>
+                <%= f.file_field :image, accept: "image/*", class: "file-input", id: "#{f.object_name}_image", style: "display: none;" %>
+                <!-- Vùng xem trước hình ảnh -->
+                <div id="image-preview" class="image-preview"></div>
+                <!-- Nút gửi -->
+                <%= f.submit "Gửi", class: "btn btn-primary send-button" %>
+              </div>
+            </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+
+
+
+  <!-- Quay lại -->
+  
+</body>
+
+<script>
+  // Cuộn đến cuối khi có tin nhắn mới
+  document.addEventListener("DOMContentLoaded", function() {
+    const chatBox = document.querySelector('.chat-box');
+    chatBox.scrollTop = chatBox.scrollHeight;  // Cuộn đến cuối
+
+   
+  });
+
+  document.addEventListener("DOMContentLoaded", function () {
+  const fileInput = document.querySelector(".file-input");
+  const previewContainer = document.querySelector("#image-preview");
+
+  if (fileInput) {
+    fileInput.addEventListener("change", function () {
+      const file = fileInput.files[0];
+      
+      if (file) {
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+          // Xóa ảnh cũ (nếu có)
+          
+          previewContainer.innerHTML = "";
+
+          // Tạo và hiển thị ảnh mới
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          previewContainer.appendChild(img);
+          
+        };
+
+        reader.readAsDataURL(file); // Đọc file để lấy URL
+      } else {
+        // Nếu không có file nào được chọn, xóa ảnh xem trước
+        previewContainer.innerHTML = "";
+      }
+    });
+  }
+});
+
+</script>
+</html>

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Thông tin tài khoản</title>
+  <%= stylesheet_link_tag 'users', media: 'all' %>
+  <%= javascript_include_tag 'application' %>
+  <style>
+    .edit-icon {
+      cursor: pointer;
+      font-size: 18px;
+      color: blue;
+      display: none; /* Ẩn icon mặc định */
+    }
+    .editable {
+      border-bottom: 1px solid #ccc;
+      cursor: text;
+    }
+    .editable[contenteditable="true"] {
+      outline: none;
+      border-bottom: 1px solid #007BFF;
+    }
+    .file-input {
+      display: none; /* Ẩn input chọn tệp */
+    }
+    .error-message {
+      color: red;
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container"> <!-- Bắt đầu container -->
+    <h1>Thông tin người dùng</h1>
+
+    <div class="avatar-container">
+      <%= image_tag @user.avatar_url || 'default-avatar.png', alt: 'Ảnh đại diện', class: 'avatar-image', id: 'avatar-image' %>
+      <span class="edit-icon" id="hinhanh-edit-icon" onclick="triggerFileInputt()">✏️</span>
+    </div>
+
+
+    <!-- Username -->
+    <p><strong>Tài khoản:</strong> 
+      <span id="username-text" class="editable" contenteditable="false"><%= @user.username %></span>
+     
+    </p>
+
+    <!-- Full Name -->
+    <p><strong>Họ tên:</strong> 
+      <span id="hoten-text" class="editable" contenteditable="false"><%= @user.hoten %></span>
+      <span class="edit-icon" id="hoten-edit-icon" onclick="editField('hoten')">✏️</span>
+    </p>
+
+    <!-- Birthdate -->
+    <p><strong>Ngày sinh:</strong> 
+      <% if @user.ngaysinh.present? %>
+        <span id="ngaysinh-text" class="editable" contenteditable="false"><%= @user.ngaysinh.strftime('%d/%m/%Y') %></span>
+        <input id="ngaysinh-input" type="date" style="display: none;" value="<%= @user.ngaysinh.strftime('%Y-%m-%d') %>">
+        <span class="edit-icon" id="ngaysinh-edit-icon" onclick="editField('ngaysinh')">✏️</span>
+      <% else %>
+        <span class="error-message">Vui lòng cập nhật</span>
+      <% end %>
+    </p>
+
+
+    <!-- Email -->
+    <p><strong>Email:</strong> 
+      <span id="email-text" class="editable" contenteditable="false"><%= @user.email %></span>
+      
+    </p>
+
+    <!-- Phone -->
+    <p><strong>Số điện thoại:</strong> 
+      <% if @user.sdt.present? %>
+        <span id="sdt-text" class="editable" contenteditable="false"><%= @user.sdt %></span>
+        <span class="edit-icon" id="sdt-edit-icon" onclick="editField('sdt')">✏️</span>
+      <% else %>
+        <span class="error-message">Vui lòng cập nhật</span>
+      <% end %>
+    </p>
+
+    <!-- Address -->
+    <p><strong>Địa chỉ:</strong> 
+      <% if @user.diachi.present? %>
+        <span id="diachi-text" class="editable" contenteditable="false"><%= @user.diachi %></span>
+        <span class="edit-icon" id="diachi-edit-icon" onclick="editField('diachi')">✏️</span>
+      <% else %>
+        <span class="error-message">Vui lòng cập nhật</span>
+      <% end %>
+    </p>
+
+    <%= link_to 'Quay lại', root_path, class: 'back-button action-button' %>
+    <%= button_tag 'Cập nhật thông tin', class: 'update-button action-button', id: 'update-button', onclick: "showEditIcons()" %>
+    <%= button_tag 'Đăng xuất', class: 'logout-button action-button', onclick: "confirmLogout()" %>
+    <%= button_tag '', class: 'logoutt-button action-button', onclick: "confirmLogout()" %>
+    
+    <% if @user.quyen == "admin" %>
+      <%= link_to 'Thống kê', thongke2_path, class: 'tke-button action-button' %>
+    <% end %>
+    <!-- New "Sản phẩm" Button -->
+    <% if @user.quyen == "admin" %>
+      <%= link_to 'Sản phẩm', sanphams_path, class: 'product-button action-button' %>
+    <% end %>
+
+    <% if @user.quyen == "admin" %>
+      <%= link_to 'Quản lý tài khoản', qlytaikhoan_path, class: 'tkhoan-button action-button' %>
+    <% end %>
+
+
+  </div> <!-- Kết thúc container -->
+
+  <script>
+    // Hàm hiển thị icon cây bút khi nhấn "Cập nhật thông tin"
+    function showEditIcons() {
+      // Hiển thị icon chỉnh sửa
+      const icons = document.querySelectorAll('.edit-icon');
+      icons.forEach(icon => icon.style.display = 'inline');
+
+      // Ẩn các nút hành động
+      const actionButtons = document.querySelectorAll('.action-button');
+      actionButtons.forEach(button => button.style.display = 'none');
+
+      // Thay đổi nút "Cập nhật thông tin" thành "Xác nhận"
+      const updateButton = document.getElementById('update-button');
+      updateButton.style.display = 'inline';
+      updateButton.innerText = 'Xác nhận';
+      updateButton.setAttribute('onclick', 'confirmUpdate()');
+}
+
+
+    // Hàm chỉnh sửa trường thông tin
+    function editField(field) {
+      // Tắt chế độ chỉnh sửa của tất cả các trường khác
+      const allFields = document.querySelectorAll('.editable');
+      allFields.forEach(element => {
+        if (element.id !== field + '-text') {
+          element.contentEditable = "false"; // Khóa các trường không được chọn
+        }
+      });
+
+      // Tắt icon của tất cả các trường khác
+      const allIcons = document.querySelectorAll('.edit-icon');
+      allIcons.forEach(icon => {
+        if (icon.id !== field + '-edit-icon') {
+          icon.style.display = 'inline'; // Hiển thị icon cho tất cả các trường chưa chọn
+        }
+      });
+
+      // Chỉ hiển thị icon của trường đang chỉnh sửa
+      const textElement = document.getElementById(field + '-text');
+      const iconElement = document.getElementById(field + '-edit-icon');
+      const inputElement = document.getElementById(`${field}-input`);
+      
+      
+      textElement.contentEditable = "true";  // Cho phép chỉnh sửa trường đã chọn
+      textElement.focus();  // Đặt con trỏ vào trường
+      iconElement.style.display = 'none';  // Ẩn icon của trường đang chỉnh sửa
+
+      if (field === 'ngaysinh') {
+        // Hiển thị input và ẩn text
+        textElement.style.display = 'none';
+        inputElement.style.display = 'inline';
+        inputElement.focus();
+      } else {
+        // Các trường khác sử dụng contentEditable
+        textElement.contentEditable = "true";
+        textElement.focus();
+      }
+
+
+    }
+
+    // Hàm xử lý khi người dùng xác nhận
+    function confirmUpdate() {
+      // Lấy giá trị các trường
+      // Lấy giá trị ngày hiện tại
+      const today = new Date();
+      const hoten = document.getElementById('hoten-text').innerText.trim();
+      const ngaysinhInput = document.getElementById('ngaysinh-input');
+      const ngaysinh = ngaysinhInput.value; // Dạng YYYY-MM-DD
+
+      const sdt = document.getElementById('sdt-text').innerText.trim();
+      const diachi = document.getElementById('diachi-text').innerText.trim();
+
+      // Kiểm tra họ tên
+      if (!hoten || hoten.length < 3 || hoten.length > 50) {
+        alert("Họ tên phải từ 3 đến 50 ký tự.");
+        return;
+      }
+
+      // Kiểm tra ngày sinh
+      const birthDate = new Date(ngaysinh);
+      const formattedBirthDate = birthDate.toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+
+      if (!ngaysinh || isNaN(birthDate) || birthDate >= today) {
+        alert("Ngày sinh phải hợp lệ và trước ngày hiện tại.");
+        return;
+      }
+
+
+      // Kiểm tra số điện thoại
+      const phoneRegex = /^\d{10,15}$/;
+      if (!sdt || !phoneRegex.test(sdt)) {
+        alert("Số điện thoại phải là chuỗi số từ 10 đến 15 ký tự.");
+        return;
+      }
+
+      // Kiểm tra địa chỉ
+      if (!diachi || diachi.length < 5 || diachi.length > 100) {
+        alert("Địa chỉ phải từ 5 đến 100 ký tự.");
+        return;
+      }
+
+      // Nếu tất cả đều hợp lệ, gửi yêu cầu cập nhật
+      if (confirm("Bạn có muốn xác nhận các thay đổi?")) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const data = {
+          taikhoan: { hoten, ngaysinh, sdt, diachi }
+        };
+
+        fetch("<%= user_path(@user) %>", {
+          method: "PATCH",
+          headers: {
+            "X-CSRF-Token": csrfToken,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        })
+          .then(response => response.json())
+          .then(result => {
+            if (result.success) {
+              alert(result.message);
+              location.reload();
+              // Hiển thị lại các nút hành động
+              const actionButtons = document.querySelectorAll('.action-button');
+              actionButtons.forEach(button => button.style.display = 'inline');
+
+              // Khóa chỉnh sửa
+              const fields = document.querySelectorAll('.editable');
+              fields.forEach(field => field.contentEditable = 'false');
+              
+            } else {
+              alert("Cập nhật thất bại: " + result.message);
+            }
+          })
+          .catch(error => {
+            alert("Đã xảy ra lỗi khi cập nhật: " + error);
+          });
+      }
+    }
+
+
+
+    // Hàm xử lý đăng xuất
+    function confirmLogout() {
+      if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        fetch("<%= logout_path %>", {
+          method: "DELETE",
+          headers: {
+            "X-CSRF-Token": csrfToken,
+            "Content-Type": "application/json"
+          },
+        }).then(() => {
+          window.location.href = "<%= root_path %>";
+        });
+      }
+    }
+
+    // Hàm hiển thị hộp thoại chọn file khi click vào biểu tượng cây bút
+  function triggerFileInputt() {
+    // Tạo một đối tượng input ẩn để mở hộp thoại chọn file
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    
+    // Khi người dùng chọn file, gọi hàm previewImage
+    fileInput.addEventListener('change', function(event) {
+      previewImage(event);
+    });
+
+    // Kích hoạt sự kiện chọn tệp
+    fileInput.click();
+  }
+
+  // Hàm xem trước ảnh đã chọn
+  function previewImage(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = function(e) {
+      // Cập nhật ảnh đại diện ngay lập tức sau khi chọn ảnh
+      const avatarImage = document.getElementById('avatar-image');
+      avatarImage.src = e.target.result;
+
+      // Sau khi người dùng chọn ảnh, bạn có thể gửi ảnh lên server
+      uploadImage(file);
+    };
+    
+    if (file) {
+      reader.readAsDataURL(file); // Đọc tệp ảnh dưới dạng base64
+    }
+  }
+
+  // Hàm tải ảnh lên server
+  function uploadImage(file) {
+      const formData = new FormData();
+      formData.append('taikhoan[avatar_url]', file);
+
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+      fetch("<%= user_path(@user) %>", {
+        method: "PATCH",
+        headers: {
+          "X-CSRF-Token": csrfToken
+        },
+        body: formData
+      })
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            alert('Cập nhật ảnh đại diện thành công!');
+            const avatarImage = document.getElementById('avatar-image');
+            if (avatarImage) {
+              avatarImage.src = result.avatar_url; // Cập nhật URL ảnh
+            }
+          } else {
+            alert('Cập nhật ảnh đại diện thất bại: ' + result.message);
+          }
+        })
+        .catch(error => {
+          alert('Đã xảy ra lỗi khi tải ảnh lên.');
+          console.error(error);
+        });
+    } 
+
+    
+  </script>
+</body>
+</html>

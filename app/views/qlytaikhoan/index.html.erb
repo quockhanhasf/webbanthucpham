@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản Lý Thông Tin Người Dùng</title>
+  <%= csrf_meta_tags %>
+  <%= stylesheet_link_tag '', media: 'all' %>
+  <style>
+    /* Cấu trúc chung của container */
+    .user-info-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    padding: 20px;
+    background-color: #f5f5f5;
+    }
+
+    /* Card cá nhân */
+    .user-info-card {
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 650px;
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Card hover effect */
+    .user-info-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    /* CSS cho từng tài khoản (dựa trên ID) */
+    .user-1 {
+    background-color: #e3f2fd;
+    border-color: #42a5f5;
+    }
+
+    .user-2 {
+    background-color: #fff3e0;
+    border-color: #ffb74d;
+    }
+
+    .user-3 {
+    background-color: #e8f5e9;
+    border-color: #66bb6a;
+    }
+
+    /* Tiêu đề */
+    .user-info-card h1 {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 10px;
+    }
+
+    .user-info-card h2 {
+        text-align: center;
+        font-size: 20px;
+        color: #444;
+        margin-top: 20px;
+        font-weight: 500;
+    }
+
+    /* Thông tin cá nhân */
+    .user-info-card p {
+    font-size: 16px;
+    color: #555;
+    margin: 10px 0;
+    }
+
+    .user-info-card p strong {
+    font-weight: 600;
+    color: #333;
+    }
+
+    /* Tùy chỉnh bảng giao dịch */
+    .transaction-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    border-radius: 8px;
+    overflow: hidden;
+    }
+
+    .transaction-table th,
+    .transaction-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: center;
+    font-size: 14px;
+    }
+
+    .transaction-table th {
+    background-color: #f4f4f4;
+    font-weight: 600;
+    }
+
+    .transaction-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+    }
+
+    .transaction-table tr:hover {
+    background-color: #f1f1f1;
+    }
+
+    /* Cải thiện màu sắc của các trạng thái */
+    .transaction-table td:nth-child(5) {
+    font-weight: bold;
+    }
+
+    .transaction-table .completed {
+    color: #4caf50;
+    }
+
+    .transaction-table .pending {
+    color: #ff9800;
+    }
+
+    .transaction-table .cancelled {
+    color: #f44336;
+    }
+
+    /* Tổng chi tiêu */
+    .user-info-card p strong {
+    font-weight: 600;
+    }
+
+    .user-info-card .total-spent {
+    font-size: 18px;
+    color: #333;
+    font-weight: 600;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #ddd;
+    }
+
+    /* Footer */
+    footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 14px;
+    color: #777;
+    }
+
+    /* CSS cho nút khoá tài khoản */
+    .btn-khoa-mo {
+      font-size: 16px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
+
+    .btn-khoa-mo[data-action="khoa"] {
+      background-color: red;
+    }
+
+    .btn-khoa-mo[data-action="khoa"]:hover {
+      background-color: darkred;
+    }
+
+    .btn-khoa-mo[data-action="mo"] {
+      background-color: green;
+    }
+
+    .btn-khoa-mo[data-action="mo"]:hover {
+      background-color: darkgreen;
+}
+
+
+
+  </style>
+</head>
+<body>
+  <div class="user-info-container">
+    <% @user_data.each do |data| %>
+      <div class="user-info-card user-<%= data[:user].id %>">
+        <h1>Thông Tin Cá Nhân</h1>
+        <% if data[:user].quyen == 'user' || data[:user].quyen.nil? %>
+          <button class="btn-khoa-mo" data-user-id="<%= data[:user].id %>" data-action="khoa">
+            Khóa tài khoản
+          </button>
+        <% elsif data[:user].quyen == 'Đang khoá' %>
+          <button class="btn-khoa-mo" data-user-id="<%= data[:user].id %>" data-action="mo">
+            Mở tài khoản
+          </button>
+        <% end %>
+        <p><strong>Họ tên:</strong> <%= data[:user].hoten %></p>
+        <p><strong>Ngày sinh:</strong> <%= data[:user].ngaysinh.strftime('%d/%m/%Y') if data[:user].ngaysinh.present? %></p>
+        <p><strong>Số điện thoại:</strong> <%= data[:user].sdt %></p>
+        <p><strong>Địa chỉ email:</strong> <%= data[:user].email %></p>
+        <p><strong>Địa chỉ nhà/công ty:</strong> <%= data[:user].diachi %></p>
+        <p><strong>Sản phẩm được mua nhiều nhất:</strong> <%= data[:most_bought_product] %></p>
+        <p><strong>Chi phí đơn hàng cao nhất:</strong> <%= number_to_currency(data[:max_order_cost], unit: "VNĐ", separator: '.', delimiter: '.', precision: 0, format: "%n %u") %></p>
+        <p><strong>Tổng số lượng đơn hàng:</strong> <%= data[:total_orders] %></p>
+        <p><strong>Số lượng đơn hàng bị hủy:</strong> <%= data[:canceled_orders_count] %></p>
+
+        <h2>Thông Tin Tài Khoản</h2>
+        <p><strong>Tên đăng nhập:</strong> <%= data[:user].username %></p>
+        <p><strong>Mật khẩu:</strong> <%= data[:user].pass %></p>
+        
+
+        <h2>Lịch Sử Giao Dịch</h2>
+        <% if data[:orders].any? %>
+          <p><strong>Tổng số tiền đã chi tiêu:</strong> <%= number_to_currency(data[:total_spent], unit: "VNĐ", separator: '.', delimiter: '.', precision: 0, format: "%n %u") %></p>
+          <table class="transaction-table">
+            <thead>
+              <tr>
+                <th>Ngày đặt hàng</th>
+                <th>Sản phẩm/dịch vụ</th>
+                <th>Phương thức thanh toán</th>
+                <th>Tổng thanh toán</th>
+                <th>Trạng thái</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% data[:orders].each do |order| %>
+                <tr>
+                  <td><%= order.ngaydathang.strftime('%d-%m-%Y %H:%M') %></td>
+                  <td><%= order.thongtinsanpham %></td>
+                  <td><%= order.trangthaithanhtoan %></td>
+                  <td><%= number_to_currency(order.tongthanhtoan, unit: 'VNĐ', separator: '.', delimiter: '.', precision: 0, format: "%n %u") %></td>
+                  <td><%= order.trangthai %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <p>Không có lịch sử giao dịch nào.</p>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".btn-khoa-mo").forEach((button) => {
+      button.addEventListener("click", function () {
+        const userId = this.getAttribute("data-user-id");
+        const action = this.getAttribute("data-action");
+        const confirmMessage =
+          action === "khoa"
+            ? "Bạn có chắc chắn muốn khóa tài khoản này không?"
+            : "Bạn có chắc chắn muốn mở tài khoản này không?";
+        const newQuyen = action === "khoa" ? "Đang khoá" : "user";
+
+        const confirmed = confirm(confirmMessage);
+        if (confirmed) {
+          fetch(`/qlytaikhoan/khoa_mo_taikhoan/${userId}`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ quyen: newQuyen }),
+          })
+            .then((response) => {
+              if (response.ok) {
+                alert(`Tài khoản đã được ${action === "khoa" ? "khóa" : "mở"} thành công.`);
+                window.location.reload();
+              } else {
+                alert("Đã xảy ra lỗi. Vui lòng thử lại.");
+              }
+            })
+            .catch(() => alert("Đã xảy ra lỗi. Vui lòng thử lại."));
+        }
+      });
+    });
+  });
+
+
+</script>
+</body>
+</html>

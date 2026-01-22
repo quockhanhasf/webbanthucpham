@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Danh sách sản phẩm</title>
+  <style>
+    /* Tổng thể */
+    body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to right, #ece9e6, #ffffff);
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+  color: #4a90e2;
+  margin-top: 20px;
+  font-size: 2.5em;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Container sản phẩm */
+.product-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  padding: 20px;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* Card sản phẩm */
+.product-card {
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  background: #ffffff;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  width: 250px;
+  padding: 20px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Hình ảnh sản phẩm */
+.product-card img {
+  max-width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+/* Tiêu đề sản phẩm */
+.product-card h3 {
+  font-size: 1.5em;
+  color: #333;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+/* Giá sản phẩm */
+.product-card p {
+  font-size: 1.2em;
+  color: #27ae60;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+/* Nút hành động */
+.product-card button {
+  display: inline-block;
+  padding: 8px 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.product-card button:first-of-type {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.product-card button:first-of-type:hover {
+  background-color: #0056b3;
+}
+
+.product-card button:last-of-type {
+  background-color: #e74c3c;
+  color: #fff;
+}
+
+.product-card button:last-of-type:hover {
+  background-color: #c0392b;
+}
+
+/* Nút thêm sản phẩm */
+.add {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 1.2em;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+.add:hover {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+
+/* Nút quay lại */
+.back-button {
+  display: inline-block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  background-color: #4a90e2;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.back-button:hover {
+  background-color: #3a78c2;
+  transform: scale(1.05);
+}
+
+.hidden {
+  display: none;
+}
+
+
+/* Modal */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.modal-content label {
+  display: block;
+  margin: 10px 0 5px;
+}
+
+.modal-content input {
+  width: 90%;
+  padding: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.modal-content button {
+  background-color: #28a745;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  margin-left: 125px
+}
+
+.modal-content button:hover {
+  background-color: #218838;
+}
+
+.modal-content .close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #333;
+}
+
+.search-container {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+#searchInput {
+  width: 300px;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+#searchInput:focus {
+  border-color: #4CAF50;
+}
+
+.search-container button {
+  padding: 10px 20px;
+  margin-left: 10px;
+  font-size: 16px;
+  color: white;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.search-container button:hover {
+  background-color: #45a049;
+}
+
+
+  </style>
+</head>
+<body>
+  <h1>Danh sách sản phẩm</h1> 
+  
+
+  <button class="add" onclick="openModal()">Thêm sản phẩm</button>
+  <%= link_to 'Quay lại', root_path, class: 'back-button' %>
+  <div class="search-container">
+    <input type="text" id="searchInput" placeholder="Tìm kiếm sản phẩm..." onkeyup="filterProducts()">
+    <button type="button" onclick="filterProducts()">Tìm kiếm</button>
+  </div>
+  <div class="product-container">
+    
+    <% @sanphams.each do |sanpham| %>
+      <div class="product-card">
+            <!-- Hình ảnh -->
+        <%= image_tag asset_path(sanpham.hinhanh), alt: sanpham.ten, class: 'product-image' %>
+        
+        <!-- Tên sản phẩm -->
+        <h3 id="ten_<%= sanpham.id %>"><%= sanpham.ten %></h3>
+        <input type="text" id="input_ten_<%= sanpham.id %>" value="<%= sanpham.ten %>" class="hidden" placeholder="Tên sản phẩm" />
+
+        <!-- Giá nhập -->
+        <p id="gianhap_<%= sanpham.id %>">Giá nhập: <%= number_to_currency(sanpham.gianhap, unit: 'VNĐ', separator: '.', delimiter: '.', precision: 0, format: "%n %u") %></p>
+        <input type="number" id="input_gianhap_<%= sanpham.id %>" value="<%= sanpham.gianhap %>" class="hidden" placeholder="Giá nhập"/>
+        <!-- Giá bán -->
+        <p id="price_<%= sanpham.id %>">Giá bán: <%= number_to_currency(sanpham.gia, unit: 'VNĐ', separator: '.', delimiter: '.', precision: 0, format: "%n %u") %></p>
+        <input type="number" id="input_price_<%= sanpham.id %>" value="<%= sanpham.gia %>" class="hidden" placeholder="Giá bán"/>
+
+        <!-- Đơn vị -->
+        <p id="donvi_<%= sanpham.id %>">Đơn vị: <%= sanpham.donvi %></p>
+        <select id="input_donvi_<%= sanpham.id %>" class="hidden" placeholder="Chọn đơn vị"> 
+          <option value="kg" <%= 'selected' if sanpham.donvi == 'kg' %>>kg</option>
+          <option value="bao" <%= 'selected' if sanpham.donvi == 'bao' %>>bao</option>
+          <option value="thung" <%= 'selected' if sanpham.donvi == 'thùng' %>>thùng</option>
+        </select>
+
+        <!-- Đơn vị -->
+        <p id="loai_<%= sanpham.id %>">Loại: <%= sanpham.loai %></p>
+        <select id="input_loai_<%= sanpham.id %>" class="hidden" placeholder="Chọn loại sản phẩm"> 
+          <option value="Rau" <%= 'selected' if sanpham.loai == 'Rau' %>>Rau</option>
+          <option value="Củ" <%= 'selected' if sanpham.loai == 'Củ' %>>Củ</option>
+          <option value="Quả" <%= 'selected' if sanpham.loai == 'Quả' %>>Quả</option>
+          <option value="Thịt" <%= 'selected' if sanpham.loai == 'Thịt' %>>Thịt</option>
+          <option value="Sữa" <%= 'selected' if sanpham.loai == 'Sữa' %>>Sữa</option>
+          <option value="Gạo" <%= 'selected' if sanpham.loai == 'Gạo' %>>Gạo</option>
+        </select>
+
+
+        <!-- Số lượng -->
+        <p id="soluong_<%= sanpham.id %>">Số lượng: <%= sanpham.soluong %></p>
+        <input type="number" id="input_soluong_<%= sanpham.id %>" value="<%= sanpham.soluong %>" class="hidden" placeholder="Số lượng"/>
+
+
+        <!-- Button cập nhật, xoá -->
+        <button id="update_button_<%= sanpham.id %>" onclick="toggleUpdate(<%= sanpham.id %>)">Cập nhật</button>
+        <button id="delete_button_<%= sanpham.id %>" onclick="deleteProduct(<%= sanpham.id %>)">Xoá</button>
+        </div>
+
+
+
+
+
+    <% end %>
+  </div>
+
+  <!-- Modal Thêm sản phẩm -->
+  <div id="addProductModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2>Thêm sản phẩm mới</h2>
+      <form id="addProductForm">
+        <label for="productName">Tên sản phẩm:</label>
+        <input type="text" id="productName" name="productName" required>
+        
+        <label for="productImage">Hình ảnh sản phẩm:</label>
+        <input type="file" id="productImage" name="productImage" accept="image/*" required>
+        
+        <label for="productQuantity">Số lượng:</label>
+        <input type="number" id="productQuantity" name="productQuantity" min="1" required>
+        
+        <label for="productdonvi">Đơn vị:</label>
+        <select id="productdonvi" name="productdonvi" required>
+          <option value="kg">kg</option>
+          <option value="bao">bao</option>
+          <option value="thung">thùng</option>
+        </select>
+
+        <!-- Loại sản phẩm -->
+        <label for="productloai">Loại:</label>
+        <select id="productloai" name="productloai" required>
+          <option value="Rau">Rau</option>
+          <option value="Cu">Củ</option>
+          <option value="Qua">Quả</option>
+          <option value="Thit">Thịt</option>
+          <option value="Sua">Sữa</option>
+          <option value="Gao">Gạo</option>
+        </select>
+
+        <label for="productPricenhap">Giá nhập:</label>
+        <input type="number" id="productPricenhap" name="productPricenhap" min="0" required>
+
+        <label for="productPrice">Giá bán:</label>
+        <input type="number" id="productPrice" name="productPrice" min="0" required>
+        
+        <button type="button" onclick="submitProduct()">Thêm sản phẩm</button>
+      </form>
+    </div>
+  </div>
+
+ 
+  
+
+
+ <script>
+   function toggleUpdate(id) {
+    const elements = {
+      price: document.getElementById(`price_${id}`),
+      gianhap: document.getElementById(`gianhap_${id}`),
+      ten: document.getElementById(`ten_${id}`),
+      donvi: document.getElementById(`donvi_${id}`),
+      loai: document.getElementById(`loai_${id}`),
+      soluong: document.getElementById(`soluong_${id}`),
+      inputPrice: document.getElementById(`input_price_${id}`),
+      inputGianhap: document.getElementById(`input_gianhap_${id}`),
+      inputTen: document.getElementById(`input_ten_${id}`),
+      inputDonvi: document.getElementById(`input_donvi_${id}`),
+      inputLoai: document.getElementById(`input_loai_${id}`),
+      inputSoluong: document.getElementById(`input_soluong_${id}`)
+    };
+
+    const updateButton = document.getElementById(`update_button_${id}`);
+    const deleteButton = document.getElementById(`delete_button_${id}`);
+
+    if (updateButton.innerText === "Cập nhật") {
+      // Ẩn các phần hiển thị
+      elements.price.classList.add('hidden');
+      elements.gianhap.classList.add('hidden');
+      elements.ten.classList.add('hidden');
+      elements.donvi.classList.add('hidden');
+      elements.loai.classList.add('hidden');
+      elements.soluong.classList.add('hidden');
+
+      // Hiển thị các ô input
+      elements.inputPrice.classList.remove('hidden');
+      elements.inputGianhap.classList.remove('hidden');
+      elements.inputTen.classList.remove('hidden');
+      elements.inputDonvi.classList.remove('hidden');
+      elements.inputLoai.classList.remove('hidden');
+      elements.inputSoluong.classList.remove('hidden');
+
+      // Chuyển nút sang trạng thái "Xác nhận"
+      updateButton.innerText = "Xác nhận";
+
+      // Đổi nút "Xoá" thành "Huỷ"
+      deleteButton.innerText = "Huỷ";
+      deleteButton.onclick = () => cancelUpdate(id, elements, updateButton, deleteButton);
+
+    } else {
+      // Thu thập dữ liệu mới từ ô input
+      const updatedData = {
+        ten: elements.inputTen.value,
+        gia: elements.inputPrice.value,
+        gianhap: elements.inputGianhap.value,
+        donvi: elements.inputDonvi.value,
+        loai: elements.inputLoai.value,
+        soluong: elements.inputSoluong.value
+      };
+
+      // Gửi request AJAX cập nhật dữ liệu
+      fetch(`/sanphams/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({ sanpham: updatedData })
+      })
+        .then(response => response.json())
+        .then(data => {
+          alert('Cập nhật thành công!');
+          location.reload();
+        })
+        .catch(error => {
+          console.error('Lỗi khi cập nhật sản phẩm:', error);
+          alert('Cập nhật thất bại!');
+        });
+    }
+  }
+
+  // Hàm huỷ cập nhật
+  function cancelUpdate(id, elements, updateButton, deleteButton) {
+    // Hiển thị lại các giá trị ban đầu
+    elements.price.classList.remove('hidden');
+    elements.gianhap.classList.remove('hidden');
+    elements.ten.classList.remove('hidden');
+    elements.donvi.classList.remove('hidden');
+    elements.loai.classList.remove('hidden');
+    elements.soluong.classList.remove('hidden');
+
+    // Ẩn các ô input
+    elements.inputPrice.classList.add('hidden');
+    elements.inputGianhap.classList.add('hidden');
+    elements.inputTen.classList.add('hidden');
+    elements.inputDonvi.classList.add('hidden');
+    elements.inputLoai.classList.add('hidden');
+    elements.inputSoluong.classList.add('hidden');
+
+    // Khôi phục trạng thái của các nút
+    updateButton.innerText = "Cập nhật";
+    deleteButton.innerText = "Xoá";
+    deleteButton.onclick = () => deleteProduct(id);
+  }
+
+
+
+
+// Chức năng xoá sản phẩm
+function deleteProduct(id) {
+  if (confirm("Bạn có chắc muốn xoá sản phẩm này?")) {
+    fetch(`/sanphams/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      }
+    })
+      .then(response => {
+        if (response.ok) {
+           // Xoá sản phẩm khỏi giao diện
+          alert("Sản phẩm đã được xoá!");
+          location.reload(); // Tự động tải lại trang
+        } else {
+          alert('Xoá sản phẩm thất bại!');
+        }
+      })
+      .catch(error => {
+        console.error('Lỗi khi xoá sản phẩm:', error);
+        alert('Xoá sản phẩm thất bại!');
+      });
+  }
+}
+
+////////THÊM SẢN PHẨM
+// Mở modal
+function openModal() {
+  document.getElementById("addProductModal").classList.remove("hidden");
+}
+
+// Đóng modal
+function closeModal() {
+  document.getElementById("addProductModal").classList.add("hidden");
+}
+
+// Gửi sản phẩm mới
+  function submitProduct() {
+      const name = document.getElementById("productName").value;
+      const image = document.getElementById("productImage").files[0];
+      const quantity = document.getElementById("productQuantity").value;
+      const price = document.getElementById("productPrice").value;
+      const donvi = document.getElementById("productdonvi").value;
+      const loai = document.getElementById("productloai").value;
+      const gianhap = document.getElementById("productPricenhap").value;
+
+      if (!name || !image || !quantity || !price || !donvi || !loai || !gianhap) {
+        alert("Vui lòng nhập đầy đủ thông tin!");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("sanpham[ten]", name);
+      formData.append("sanpham[hinhanh]", image);
+      formData.append("sanpham[soluong]", quantity);
+      formData.append("sanpham[gia]", price);
+      formData.append("sanpham[donvi]", donvi);
+      formData.append("sanpham[loai]", loai);
+      formData.append("sanpham[gianhap]", gianhap);
+      
+
+      fetch("/sanphams", {
+        method: "POST",
+        headers: {
+          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
+        },
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          alert("Thêm sản phẩm thành công!");
+          location.reload();
+        } else {
+          alert("Lỗi: " + data.error);
+        }
+      })
+      .catch(error => {
+        console.error("Lỗi khi thêm sản phẩm:", error);
+      });
+    }
+
+
+    function filterProducts() {
+      const searchTerm = document.getElementById("searchInput").value.toLowerCase();
+      const products = document.querySelectorAll(".product-card");
+
+      products.forEach(product => {
+        const productName = product.querySelector("h3").textContent.toLowerCase();
+        if (productName.includes(searchTerm)) {
+          product.style.display = "block"; // Hiển thị sản phẩm
+        } else {
+          product.style.display = "none"; // Ẩn sản phẩm
+        }
+      });
+    }
+
+
+
+
+
+ </script> 
+</body>
+</html>

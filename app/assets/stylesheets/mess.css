@@ -1,0 +1,254 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  color: #333;
+  padding: 20px;
+}
+
+.d{
+  margin-left: 300px;
+  margin-bottom: 80px;
+}
+
+
+
+.messages-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-container, .user-container {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+}
+
+h2{
+  margin-left: 420px;
+  margin-top: -30px;
+}
+
+.user-list ul {
+  list-style: none;
+  padding: 0;
+
+}
+
+.user-list li {
+  margin-bottom: 10px;
+  
+  height: 30px;
+  border-bottom: 2px solid #ffffff; /* Tạo viền phân cách màu trắng */
+  display: flex;
+  align-items: center; /* Căn giữa nội dung theo chiều dọc */
+  padding: 0 10px; /* Thêm khoảng cách giữa nội dung và viền */
+  color: #ffffff; /* Màu chữ */
+  font-size: 17px; /* Cỡ chữ */
+}
+
+.user-list li:hover{
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.user-list li.active {
+  font-weight: bold;
+}
+
+
+
+.message {
+  margin-top: -10px;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #e9ecef;
+  width: 220px;
+  margin-bottom: 4px;  /* Giữ nguyên khoảng trắng và xuống dòng tự động */
+}
+
+/* Đảm bảo hộp chat hiển thị theo chiều dọc */
+.chat-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Tin nhắn từ Admin sẽ hiển thị bên trái */
+.message.from-admin {
+  align-self: flex-start; /* Tin nhắn của admin nằm bên trái */
+  background-color: #f1f1f1;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 60%;
+  margin-left: 10px;  /* Khoảng cách từ cạnh trái */
+}
+
+/* Tin nhắn từ User sẽ hiển thị bên phải */
+.message.from-user {
+  align-self: flex-end; /* Tin nhắn của user nằm bên phải */
+  background-color: #d1e7fd;
+  padding: 10px;
+  border-radius: 10px;
+  max-width: 60%;
+  margin-right: 10px; /* Khoảng cách từ cạnh phải */
+}
+
+/* Đảm bảo không có margin hoặc padding thừa trong tin nhắn */
+.message p {
+  margin: 0;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+/* Điều chỉnh cách hiển thị tên người gửi */
+.message strong {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+
+
+form textarea {
+  width: 100%;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+form .btn {
+  width: 100%;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+form .btn:hover {
+  background-color: #0056b3;
+}
+
+.badge {
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 5px 10px;
+  font-size: 0.9em;
+  margin-left: 5px;
+}
+
+.user-link {
+  text-decoration: none;
+  color: #333;
+}
+
+.user-link.active {
+  font-weight: bold;
+  color: blue;
+}
+
+.back-button {
+  display: inline-block;
+  background-color: #b0afbb;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  text-decoration: none; /* Bỏ gạch chân */
+  margin-top: 20px;
+  transition: background-color 0.3s;
+  margin-right: 120px;
+}
+
+.back-button:hover {
+  background-color: #7524bc; /* Màu nền khi hover */
+}
+
+.message-image {
+  max-width: 200px;
+  max-height: 200px;
+  display: block;
+  margin-top: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.message-input-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.text-area-container {
+  flex: 1; /* Chiếm tối đa không gian có thể */
+}
+
+.message-text-area {
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  font-size: 16px;
+  resize: none;
+}
+
+.actions-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.upload-icon {
+  background-color: #f8f9fa;
+  color: #007bff;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.upload-icon:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.upload-icon i {
+  font-size: 18px;
+}
+
+.file-input {
+  display: none; /* Ẩn input file mặc định */
+}
+
+.send-button {
+  padding: 8px 16px;
+  font-size: 16px;
+  border-radius: 5px;
+}
+
+.image-preview {
+  margin-top: 10px;
+  max-height: 80px;
+  max-width: 80px;
+  overflow: hidden;
+}
+
+.image-preview img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: cover;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}

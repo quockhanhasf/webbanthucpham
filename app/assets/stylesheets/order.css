@@ -1,0 +1,402 @@
+body {
+    background-image: url(hinh1.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Đặt toàn bộ body có nền nhạt và căn giữa nội dung */
+  
+  h1, h2 {
+    text-align: center;
+    color: #213a58;
+    margin-bottom: 20px;
+    font-style: initial;
+  }
+  
+  table {
+    width: 80%;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  table th, table td {
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+  
+  table th {
+    background-color: #46dfb1;
+    color: white;
+    font-weight: bold;
+    font-size: 18px;
+  }
+  
+  table tbody tr:nth-child(even) {
+    background-color: #80ee98;
+  }
+  
+  
+  
+  .tc {
+    text-align: right;
+    font-size: 18px;
+    font-weight: bold;
+    margin: 20px 0;
+    color: red;
+    font-style: italic;
+  }
+  
+  form {
+    width: 60%;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #80ee98;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  form div {
+    margin-bottom: 15px;
+  }
+  
+  form label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #555;
+  }
+  
+  form input, form select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  form input:focus, form select:focus {
+    border-color: #4caf50;
+    outline: none;
+  }
+  
+  
+  .order-button{
+    background-color: #09d1c7; /* Màu cam nổi bật */
+    color: white; /* Chữ màu trắng */
+    padding: 12px 20px; /* Khoảng cách bên trong nút */
+    font-size: 16px; /* Kích thước chữ */
+    font-weight: bold; /* Chữ đậm */
+    border: none; /* Loại bỏ đường viền */
+    border-radius: 8px; /* Bo góc nút */
+    cursor: pointer; /* Thay đổi con trỏ khi hover */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Hiệu ứng bóng */
+    transition: all 0.3s ease; /* Hiệu ứng chuyển động */
+  }
+
+  .order-button:hover {
+    background-color: #213a58; /* Màu cam đậm hơn */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Tăng bóng khi hover */
+    transform: translateY(-2px); /* Di chuyển nút lên một chút */
+  }
+  
+  /* Hiệu ứng khi nhấn */
+  .order-button:active {
+    background-color: #213a58; /* Màu cam tối hơn */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Giảm bóng khi nhấn */
+    transform: translateY(0); /* Trả lại vị trí ban đầu */
+  }
+
+  .check-button{
+    background-color: #09d1c7; /* Màu cam nổi bật */
+    color: white; /* Chữ màu trắng */
+    padding: 12px 20px; /* Khoảng cách bên trong nút */
+    font-size: 16px; /* Kích thước chữ */
+    font-weight: bold; /* Chữ đậm */
+    border: none; /* Loại bỏ đường viền */
+    border-radius: 8px; /* Bo góc nút */
+    cursor: pointer; /* Thay đổi con trỏ khi hover */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Hiệu ứng bóng */
+    transition: all 0.3s ease; /* Hiệu ứng chuyển động */
+    margin-left: 270px;
+    margin-top: 20px;
+  }
+
+  
+  /* Hiệu ứng hover */
+  .check-button:hover {
+    background-color: #213a58; /* Màu cam đậm hơn */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* Tăng bóng khi hover */
+    transform: translateY(-2px); /* Di chuyển nút lên một chút */
+  }
+  
+  /* Hiệu ứng khi nhấn */
+  .check-button:active {
+    background-color: #213a58; /* Màu cam tối hơn */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Giảm bóng khi nhấn */
+    transform: translateY(0); /* Trả lại vị trí ban đầu */
+  }
+
+ 
+  
+  @media (max-width: 768px) {
+    table, form {
+      width: 90%;
+    }
+  
+    form input, form select {
+      font-size: 14px;
+    }
+  
+    .check-button {
+      font-size: 16px;
+    }
+  }
+  
+  .c{
+    width: 97%;
+  }
+
+  .sps{
+    text-align: center;
+    margin-bottom: 5px;
+  }
+
+  .al{
+    width: 80%;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: rgb(172, 197, 172);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .shipping-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .shipping-option {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    height: 100px;
+    text-align: left;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .shipping-option.active {
+    background-color: #007bff;
+    color: #fff;
+    border-color: #007bff;
+  }
+  
+  .shipping-option:hover {
+    background-color: #0056b3;
+    color: #fff;
+  }
+  
+  .shipping-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .method-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .method-description {
+    font-size: 14px;
+    color: #555;
+    margin-top: -10px;
+
+
+  }
+  .payment-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .payment-option {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    text-align: left;
+    background-color: #f9f9f9;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+    text-decoration: none;
+    color: #333;
+  }
+  
+  .payment-option.active {
+    background-color: #28a745;
+    color: #fff;
+    border-color: #28a745;
+  }
+  
+  .payment-option:hover:not(.disabled) {
+    background-color: #218838;
+    color: #fff;
+  }
+  
+  .payment-option.disabled {
+    background-color: #e9ecef;
+    color: #6c757d;
+    cursor: not-allowed;
+  }
+  
+  .payment-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .method-header {
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .method-description p {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+  }
+  
+
+
+  
+  .payment-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 18px;
+  }
+  
+  .payment-row.total {
+    font-weight: bold;
+    font-size: 18px;
+    margin-top: 15px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+  }
+  
+  .label {
+    color: #333;
+  }
+  
+  .value {
+    color: #000;
+  }
+  
+  /* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+
+
+.modal-content {
+  background-color: white;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 50%;
+  text-align: center;
+}
+
+.modal-content img.qr-code {
+  max-width: 75%;
+  height: auto;
+  margin: 20px 0;
+}
+
+.modal-contentt{
+  background-color: white;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 8px;
+  width: 60%;
+  text-align: center;
+}
+
+.success-button {
+  background-color: green;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.success-button:hover {
+  background-color: darkgreen;
+}
+
+.close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.btn_back{
+  display: inline-block;
+  background-color: #007BFF;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  text-decoration: none; /* Bỏ gạch chân */
+  margin-top: 20px;
+  transition: background-color 0.3s;
+  margin-right: 20px;
+}
+
+
+
+.btn_back:hover {
+    background-color: #0056b3; /* Màu nền khi hover */
+}
+
+.shipping-option.disabled, .payment-option.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+button[disabled], a.payment-option.disabled {
+  pointer-events: none; /* Không cho thao tác */
+  opacity: 0.5; /* Làm mờ */
+  cursor: not-allowed; /* Hiển thị biểu tượng không khả dụng */
+}
+
+.em{
+  width: 97%;
+}

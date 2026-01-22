@@ -1,0 +1,9 @@
+<% if flash[:alert] %>
+  <div class="alert alert-danger">
+    <%= flash[:alert] %>
+  </div>
+<% else %>
+  <script>
+    window.location = "<%= root_path %>";
+  </script>
+<% end %>

@@ -1,0 +1,170 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+}
+
+h1 {
+  text-align: center;
+  margin: 20px 0;
+  font-size: 2em;
+  color: #333;
+}
+
+table {
+  width: 95%;
+  margin: 20px auto;
+  border-collapse: collapse;
+  background-color: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+table th,
+table td {
+  padding: 12px;
+  text-align: center;
+  border: 2px solid #819278;
+}
+
+table th {
+  background-color: #007bff;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.confirm-button {
+  background-color: #80ee98;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.confirm-button:hover {
+  background-color: #218838;
+}
+
+
+
+.alert {
+  margin: 10px auto;
+  padding: 10px;
+  width: 90%;
+  color: #721c24;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.notice {
+  margin: 10px auto;
+  padding: 10px;
+  width: 90%;
+  color: #155724;
+  background-color: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* Chỉ định màu sắc và kiểu dáng của button khi đã xác nhận */
+.confirm-button:disabled {
+  background-color: #ddd; /* Màu nền xám */
+  color: #888; /* Màu chữ xám */
+  cursor: not-allowed; /* Con trỏ không cho phép */
+  border: 1px solid #ccc; /* Viền mờ */
+}
+
+/* Chỉ định màu sắc và kiểu dáng cho button khi trạng thái là "Đã xác nhận" */
+.confirm-button.confirmed {
+  background-color: #788d79; /* Màu xanh lá */
+  color: white;
+  cursor: not-allowed;
+  border: 1px solid #788d79;
+}
+
+button.confirm-button.final {
+  background-color: #09d1c7; /* Màu xanh lá */
+  color: white; /* Chữ màu trắng */
+  cursor: not-allowed; /* Con trỏ dạng không cho phép */
+  border: none; /* Loại bỏ đường viền */
+}
+
+button.confirm-button.final:disabled {
+  opacity: 1; /* Hiển thị rõ ràng thay vì làm mờ */
+}
+
+.confirm-button.cancel {
+  background-color: red; /* Màu nền đỏ */
+  color: white;          /* Màu chữ trắng */
+  border: none;          /* Loại bỏ viền nếu cần */
+  cursor: not-allowed;   /* Con trỏ không cho phép (tùy chỉnh) */
+}
+
+.search-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+}
+
+.search-container label {
+  font-size: 16px;
+  font-weight: 600;
+  margin-right: 10px;
+  margin-top: 10px;
+}
+
+.search-container input[type="text"],
+.search-container input[type="date"] {
+  width: 200px;
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  outline: none;
+  transition: border 0.3s ease, box-shadow 0.3s ease;
+  margin: 5px;
+}
+
+.search-container input[type="text"]:focus,
+.search-container input[type="date"]:focus {
+  border-color: #4CAF50;
+  box-shadow: 0 0 8px rgba(0, 128, 0, 0.2);
+}
+
+.search-container button {
+  padding: 10px 20px;
+  margin-left: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.search-container button:hover {
+  background-color: rgb(58, 130, 62);
+  transform: translateY(-2px);
+}
+
+.search-container button:focus {
+  outline: none;
+}
+

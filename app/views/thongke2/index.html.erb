@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thống kê đơn hàng</title>
+  <%= csrf_meta_tags %>
+  <%= stylesheet_link_tag 'thongke2', media: 'all' %>
+</head>
+<body>
+
+<h1>Thống kê đơn hàng</h1>
+
+<div class="container">
+  <!-- Bộ lọc -->
+  <div class="filter-section">
+    <select id="timeFilter" onchange="updateDateRange()">
+      <option value="today">Hôm nay</option>
+      <option value="yesterday">Hôm qua</option>
+      <option value="last_week">Tuần trước</option>
+      <option value="this_month">Tháng này</option>
+      <option value="last_month">Tháng trước</option>
+      <option value="custom">Tùy chọn</option>
+    </select>
+
+    <form method="get">
+      <label for="startDate">Từ ngày:</label>
+      <input type="date" id="startDate" name="start_date" value="<%= params[:start_date].present? ? Date.parse(params[:start_date]).strftime('%Y-%m-%d') : Date.today.beginning_of_month.strftime('%Y-%m-%d') %>">
+
+      <label for="endDate">Đến ngày:</label>
+      <input type="date" id="endDate" name="end_date" value="<%= params[:end_date].present? ? Date.parse(params[:end_date]).strftime('%Y-%m-%d') : Date.today.strftime('%Y-%m-%d') %>">
+
+
+      
+    </form>
+
+    <select id="orderType">
+      <option value="">Tất cả đơn hàng</option>
+      
+    </select>
+
+    <button onclick="filterOrders()">Lọc dữ liệu</button>
+  </div>
+
+
+    <div id="filterInfo">
+    <!-- Nội dung sẽ được cập nhật khi lọc -->
+    </div>
+    
+    <div class="summary-section">
+      <div class="summary-box">
+        <h3>Doanh số</h3>
+        <p id="doanh_so">0</p>
+      </div>
+      <div class="summary-box">
+        <h3>Doanh thu</h3>
+        <p id="doanh_thu">0</p>
+      </div>
+      <div class="summary-box">
+        <h3>Chi phí</h3>
+        <p id="chi_phi">0</p>
+      </div>
+      <div class="summary-box">
+        <h3>Lợi nhuận</h3>
+        <p id="loi_nhuan">0</p>
+      </div>
+    </div>
+
+
+  <!-- Thông tin tóm tắt -->
+  <div class="summary-section">
+    <div class="summary-box">
+      <h3>Tổng số đơn hàng</h3>
+      <p id="totalOrdersText">0</p>
+    </div>
+    <div class="summary-box">
+      <h3>Số lượng đơn hàng trong khoảng</h3>
+      <p id="ordersInRangeText">0</p>
+    </div>
+  </div>
+
+
+    
+
+
+  <!-- Biểu đồ -->
+  <div class="chart-container">
+    <div class="chart-title">Biểu đồ</div>
+    <canvas id="orderChart" width="120" height="30"></canvas>
+  </div>
+
+
+
+  <!-- Nút chuyển đổi biểu đồ -->
+  <div class="chart-switch">
+    <button onclick="toggleChartType()">Chuyển đổi loại biểu đồ</button>
+  </div>
+
+  <h2>Thống kê sản phẩm bán chạy</h2>
+    <table class="table-stats">
+      <thead>
+        <tr>
+          <th>Tên sản phẩm</th>
+          <th>Số lượng đã bán</th>
+          <th>Tồn kho</th>
+          <th>Giá bán</th>
+          <th>Giá nhập</th>
+          <th>Lợi nhuận</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @top_selling_products.each do |product| %>
+          <tr>
+            <td><%= product[:ten] %></td>
+            <td><%= product[:soluong_ban] %> <%= product[:donvi] %></td>
+            <td><%= product[:ton_kho] %> <%= product[:donvi] %></td>
+            <td><%= number_to_currency(product[:gia] , unit: 'VNĐ', separator: '.', delimiter: '.', precision: 0, format: "%n %u") %> </td>
+            <td><%= number_to_currency(product[:gianhap] , unit: 'VNĐ', separator: '.', delimiter: '.', precision: 0, format: "%n %u") %></td>
+            <td><%= number_to_currency(product[:loinhuan] , unit: 'VNĐ', separator: '.', delimiter: '.', precision: 0, format: "%n %u") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+
+  
+
+
+
+</div>
+
+</div>
+
+<!-- JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const orderData = <%= raw @order_chart_data.to_json %>;
+  
+  // Biểu đồ
+  let chartType = 'line';
+  const ctx = document.getElementById('orderChart').getContext('2d');
+  const chart = new Chart(ctx, {
+    type: chartType,
+    data: {
+      labels: orderData.map(o => o.date),
+      datasets: [{
+        label: 'Số lượng đơn hàng',
+        data: orderData.map(o => o.count),
+        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+        }
+      }
+    }
+  });
+
+  // Chuyển đổi loại biểu đồ
+    function toggleChartType() {
+        chartType = chartType === 'line' ? 'bar' : 'line' ;
+        chart.config.type = chartType;
+        chart.update();
+    }
+
+    // Định dạng ngày theo dd/MM/yyyy
+    function formatDate(date) {
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    // Khởi tạo ngày hiện tại
+    const today = new Date();
+    const todayISO = today.toISOString().split('T')[0]; // yyyy-MM-dd
+
+    // Gán giá trị mặc định cho endDate và giới hạn max
+    document.getElementById('endDate').value = todayISO;
+    document.getElementById('endDate').max = todayISO;
+
+    // Cập nhật ngày bắt đầu dựa trên bộ lọc thời gian
+    function updateDateRange() {
+        const timeFilter = document.getElementById('timeFilter').value;
+        const endDate = document.getElementById('endDate').value || todayISO;
+        const endDateObj = new Date(endDate);
+
+        let startDate;
+
+        switch (timeFilter) {
+            case 'today':
+            startDate = new Date(endDateObj);
+            break;
+            case 'yesterday':
+            startDate = new Date(endDateObj.setDate(endDateObj.getDate() - 1));
+            break;
+            case 'last_week':
+            startDate = new Date(endDateObj.setDate(endDateObj.getDate() - 7));
+            break;
+            case 'this_month':
+            startDate = new Date(endDateObj.getFullYear(), endDateObj.getMonth(), 1);
+            break;
+            case 'last_month':
+            startDate = new Date(endDateObj.getFullYear(), endDateObj.getMonth() - 1, 1);
+            endDateObj.setDate(0); // Ngày cuối cùng của tháng trước
+            break;
+            case 'custom':
+            startDate = null; // Để người dùng chọn tay
+            break;
+        }
+
+        if (startDate) {
+            document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+        } else {
+            document.getElementById('startDate').value = '';
+        }
+
+        // Giới hạn max cho startDate
+        document.getElementById('startDate').max = endDate;
+    }
+
+    const totalOrders = orderData.reduce((sum, data) => sum + data.count, 0);
+    document.getElementById('totalOrdersText').innerText = totalOrders || 0;
+
+
+    function filterOrders() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const orderType = document.getElementById('orderType').value;
+
+        
+
+
+        const filterInfo = document.getElementById('filterInfo');
+        if (filterInfo) {
+            filterInfo.innerHTML =
+            `Hiển thị dữ liệu từ <strong>${formatDate(startDate)}</strong> đến <strong>${formatDate(endDate)}</strong>`;
+        }
+
+        // Lọc dữ liệu theo khoảng thời gian
+        const filteredOrders = orderData.filter(order => {
+            const orderDate = new Date(order.date);
+            return orderDate >= new Date(startDate) && orderDate <= new Date(endDate);
+        });
+
+        console.log("Order Data:", orderData);
+        console.log("Start Date:", startDate);
+        console.log("End Date:", endDate);
+
+
+        // Tính tổng số đơn hàng trong khoảng
+        const totalOrdersInRange = filteredOrders.reduce((sum, order) => sum + (order.count || 0), 0);
+
+
+        // Cập nhật số liệu lên giao diện
+        document.getElementById('ordersInRangeText').innerText = totalOrdersInRange || 0;
+        console.log("Filtered Orders:", filteredOrders);
+        console.log("Total Orders:", totalOrdersInRange);
+
+
+        fetch(`/thongke2?start_date=${startDate}&end_date=${endDate}`, {
+            headers: { 'Accept': 'application/json' }
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Cập nhật thông tin doanh số, doanh thu, chi phí và lợi nhuận
+                document.getElementById('doanh_so').innerText = formatCurrency(data.doanh_so) || 0;
+                document.getElementById('doanh_thu').innerText = formatCurrency(data.doanh_thu) || 0;
+                document.getElementById('chi_phi').innerText = formatCurrency(data.chi_phi) || 0;
+                document.getElementById('loi_nhuan').innerText = formatCurrency(data.loi_nhuan) || 0;
+
+                alert('Dữ liệu đã được cập nhật!');
+            })
+            .catch(error => console.error('Lỗi khi tải dữ liệu:', error));
+    }
+
+    // Khởi tạo bộ lọc mặc định
+    updateDateRange();
+
+
+    function formatDateToDMY(date) {
+        const d = new Date(date);
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+
+    // Chuyển đổi từ dd/MM/yyyy sang yyyy-MM-dd
+    function formatDateToYMD(dateStr) {
+      const [day, month, year] = dateStr.split('/');
+      return `${year}-${month}-${day}`;
+      }
+
+    // Lắng nghe sự kiện thay đổi ngày để hiển thị định dạng dd/MM/yyyy
+    function setupDateInputs() {
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+
+    // Thiết lập giá trị mặc định
+    const today = new Date().toISOString().split('T')[0];
+    endDateInput.value = today;
+    endDateInput.max = today;
+
+    startDateInput.addEventListener('change', () => {
+        const formattedDate = formatDateToDMY(startDateInput.value);
+        startDateInput.setAttribute('data-display', formattedDate);
+    });
+
+    endDateInput.addEventListener('change', () => {
+        const formattedDate = formatDateToDMY(endDateInput.value);
+        endDateInput.setAttribute('data-display', formattedDate);
+    });
+    }
+
+    // Khởi chạy khi trang tải
+    setupDateInputs();
+
+
+  function formatCurrency(value) {
+      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' })
+          .format(value)
+          .replace('₫', 'VNĐ');
+  }
+
+  
+
+</script>
+</body>
+</html>

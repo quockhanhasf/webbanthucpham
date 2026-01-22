@@ -1,0 +1,171 @@
+    /* Reset một số kiểu mặc định */
+    body {
+        background-image: url(hinh1.png);
+        background-size: cover; /* Ảnh sẽ bao phủ toàn bộ màn hình */
+        background-repeat: no-repeat; /* Không lặp lại ảnh */
+        background-attachment: fixed; /* Ảnh nền cố định khi cuộn */
+        background-position: center; /* Căn giữa ảnh nền */
+        margin: 0; /* Loại bỏ khoảng cách mặc định */
+        padding: 0;
+
+    }
+
+    h1 {
+        text-align: center;
+        color: #343a40;
+        margin-bottom: 20px;
+    }
+
+    /* Các phần tử thông tin người dùng */
+    p {
+        font-size: 18px;
+        line-height: 1.5;
+        color: #495057;
+        padding: 10px;
+        border-bottom: 1px solid #e9ecef; /* Đường kẻ dưới mỗi thông tin */
+    }
+
+    strong {
+        color: #007BFF; /* Màu cho nhãn thông tin */
+    }
+
+    /* Nút quay lại */
+    .back-button {
+        display: inline-block;
+        background-color: #007BFF;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none; /* Bỏ gạch chân */
+        margin-top: 0px;
+        transition: background-color 0.3s;
+        margin-right: 120px;
+    }
+
+    .back-button:hover {
+        background-color: #0056b3; /* Màu nền khi hover */
+    }
+
+    /* Nút đăng xuất */
+    .logout-button {
+        background-color: #dc3545; /* Màu đỏ */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+        cursor: pointer; /* Con trỏ khi rê chuột */
+    }
+
+    .logoutt-button {
+        background-color: #dc3545; /* Màu đỏ */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+        cursor: pointer; /* Con trỏ khi rê chuột */
+        visibility: hidden;
+        margin-right: -47px;
+    }
+
+    .logout-button:hover {
+        background-color: #751f28; /* Màu đỏ đậm khi hover */
+    }
+
+    .update-button {
+        background-color: #15c263; /* Màu đỏ */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+        cursor: pointer; /* Con trỏ khi rê chuột */
+        margin-right: 127px;
+    }
+
+    .update-button:hover {
+        background-color: #177e33; /* Màu đỏ đậm khi hover */
+    }
+
+    .tke-button {
+        background-color: #74c498; /* Màu đỏ */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        transition: background-color 0.3s;
+        cursor: pointer; /* Con trỏ khi rê chuột */
+        margin-left:2px;
+
+    }
+
+    .tke-button:hover {
+        background-color: #177e33; /* Màu đỏ đậm khi hover */
+    }
+
+    /* Thêm một số kiểu cho body */
+    body {
+        padding: 20px; /* Đệm cho body */
+    }
+
+    .container {
+        max-width: 600px; /* Chiều rộng tối đa cho container */
+        margin: 0 auto; /* Căn giữa */
+        background-color: rgb(165, 213, 168); /* Nền trắng */
+        padding: 20px; /* Đệm cho container */
+        border-radius: 8px; /* Bo góc cho container */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Đổ bóng cho container */
+    }
+    /* Phần chứa ảnh đại diện */
+    .avatar-container {
+        display: flex;
+        justify-content: center; /* Căn giữa */
+        margin-bottom: 20px; /* Khoảng cách dưới ảnh đại diện */
+    }
+
+    .avatar-image {
+        width: 100px; /* Chiều rộng của ảnh đại diện */
+        height: 100px; /* Chiều cao của ảnh đại diện */
+        border-radius: 50%; /* Bo tròn ảnh đại diện */
+        object-fit: cover; /* Đảm bảo ảnh không bị méo */
+        border: 2px solid #007BFF; /* Đường viền cho ảnh đại diện */
+    }
+
+
+    .product-button{
+        background-color: #74c498; /* Màu đỏ */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+        cursor: pointer; /* Con trỏ khi rê chuột */
+        margin-left: 138px;
+    }
+
+    .product-button:hover {
+        background-color: #177e33; /* Màu đỏ đậm khi hover */
+    }
+
+    .tkhoan-button{
+        background-color: #74c498; /* Màu đỏ */
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        margin-top: 20px;
+        transition: background-color 0.3s;
+        cursor: pointer; /* Con trỏ khi rê chuột */
+        margin-left: 96px;
+    }
+
+    .tkhoan-button:hover {
+        background-color: #177e33; /* Màu đỏ đậm khi hover */
+    }

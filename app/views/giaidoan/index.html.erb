@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thông tin đơn hàng</title>
+  <%= csrf_meta_tags %>
+  <%= stylesheet_link_tag '', media: 'all' %>
+    <style>
+        /* General Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background-color: #f9f9f9;
+  color: #333;
+}
+.a{
+    display: none;
+}
+.tra{
+  display: flex; /* Đảm bảo các thành phần bên trong canh chỉnh linh hoạt */
+    align-items: center; /* Căn giữa theo chiều dọc (nếu cần) */
+    justify-content: flex-end; /* Căn trái theo chiều ngang */
+    margin-left: 0; /* Đặt phần lề trái bằng 0 nếu có khoảng cách không mong muốn */
+    text-align: left; 
+}
+
+.tong{
+  display: flex; /* Đảm bảo các thành phần bên trong canh chỉnh linh hoạt */
+    align-items: center; /* Căn giữa theo chiều dọc (nếu cần) */
+    justify-content: flex-end; /* Căn trái theo chiều ngang */
+    margin-left: 0; /* Đặt phần lề trái bằng 0 nếu có khoảng cách không mong muốn */
+    text-align: left; 
+    
+}
+.giatong{
+     display: flex; /* Đảm bảo các thành phần bên trong canh chỉnh linh hoạt */
+    align-items: center; /* Căn giữa theo chiều dọc (nếu cần) */
+    justify-content: flex-end; /* Căn trái theo chiều ngang */
+    margin-left: 0; /* Đặt phần lề trái bằng 0 nếu có khoảng cách không mong muốn */
+    text-align: left; 
+    font-size: 20px;
+    font-style: bold;
+    text-decoration: underline;
+}
+
+h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #555;
+}
+
+label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Layout */
+.order-info {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.section {
+  margin-bottom: 20px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.col {
+  flex: 1;
+}
+
+.col:not(:last-child) {
+  margin-right: 10px;
+}
+
+/* Product Info */
+.product-info {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+}
+
+.product-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.product-image {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin-right: 10px;
+}
+
+.details {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-left: 15px;
+}
+
+.details h4 {
+  margin: 0;
+  flex: 1;
+  font-size: 1rem;
+  color: #333;
+}
+
+.details .price,
+.details .quantity,
+.details .total {
+  margin-left: 15px;
+  font-size: 0.9rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+.details .price {
+  font-weight: bold;
+  color: #0056b3;
+}
+
+.details .total {
+  color: #27ae60;
+}
+
+/* General Styles */
+.delivery-status {
+  max-width: 900px;
+  margin: 20px auto;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.delivery-status h3 {
+  font-size: 1.2rem;
+  color: #007b5e;
+  margin-bottom: 10px;
+}
+
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  gap: 10px; /* Khoảng cách giữa các giai đoạn */
+}
+
+.status-bar::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 5%;
+  right: 5%;
+  height: 2px;
+  background: #ccc;
+
+}
+
+
+
+.status-item {
+  position: relative;
+  text-align: center;
+  z-index: 2;
+  align-items: center; /* Đảm bảo biểu tượng và văn bản căn giữa */
+  flex: 1; /* Đảm bảo chia đều không gian giữa các trạng thái */
+  
+ 
+  
+}
+
+.status-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  
+  line-height: 20px;
+  border-radius: 50%;
+  background-color: #ccc;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  
+}
+
+.status-text {
+  display: block;
+  margin-top: 40px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.status-item.completed .status-icon {
+  background-color: #007b5e;
+}
+
+.status-item.active .status-icon {
+  background-color: #007b5e; /* Màu sáng cho trạng thái hiện tại */
+  color: #fff;
+  border: 2px solid #007b5e;
+}
+
+.status-item.completed .status-icon {
+  background-color: #007b5e; /* Màu đã hoàn thành */
+  color: #fff;
+}
+
+.status-item.active .status-text {
+  color: #007b5e;
+}
+
+.status-item.completed .status-text {
+  color: #666;
+}
+
+.received-button {
+  padding: 10px 20px;
+  background-color: #28a745; /* Màu xanh biểu thị trạng thái thành công */
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  
+}
+
+.received-button:hover {
+  background-color: #218838; /* Màu xanh đậm hơn khi hover */
+}
+
+.button-container {
+  display: flex;            /* Sử dụng flexbox */
+  justify-content: center;  /* Căn giữa theo chiều ngang */
+  align-items: center;      /* Căn giữa theo chiều dọc */
+  margin-top: 20px;         /* Thêm khoảng cách trên nút (nếu cần) */
+}
+
+.btn-history, .btn-back {
+  position: fixed; /* Đặt nút cố định ở vị trí */
+  top: 20px; /* Cách mép trên cùng 20px */
+  text-decoration: none;
+  color: white;
+  background-color: #4CAF50; /* Màu xanh lá nhẹ */
+  padding: 12px 24px; /* Kích thước padding */
+  border-radius: 8px; /* Bo góc */
+  font-weight: 600; /* Font chữ đậm */
+  font-size: 16px; /* Kích thước chữ lớn */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Hiệu ứng hover */
+  z-index: 1000; /* Đảm bảo nút nằm trên cùng */
+}
+
+.btn-back {
+  background-color: #15919b; /* Màu riêng cho nút Back */
+  left: 20px; /* Cố định bên trái cách mép trái 20px */
+}
+
+.btn-history {
+  right: 20px; /* Cố định bên phải cách mép phải 20px */
+}
+
+.btn-history:hover, .btn-back:hover {
+  background-color: rgb(58, 130, 62); /* Màu xanh lá đậm khi hover */
+  transform: translateY(-2px); /* Hiệu ứng nổi */
+  box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15); /* Tăng đổ bóng */
+}
+
+.btn-history:active, .btn-back:active {
+  transform: translateY(1px); /* Hiệu ứng nhấn chìm */
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2); /* Giảm đổ bóng */
+}
+
+/* Đảm bảo nút không bị lệch khi thu nhỏ trang */
+@media screen and (max-width: 768px) {
+  .btn-back {
+    left: 10px; /* Thu nhỏ khoảng cách nút Back khi màn hình nhỏ */
+  }
+
+  .btn-history {
+    right: 10px; /* Thu nhỏ khoảng cách nút History khi màn hình nhỏ */
+  }
+}
+
+.huybtn{
+  margin-left:570px;
+  background-color: red;
+}
+.huybtn:hover{
+  background-color:rgb(155, 18, 18) ;
+}
+
+.no-orders {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #555;
+  margin: 20px 0;
+}
+
+/* Overlay */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Overlay tối */
+  z-index: 999;
+}
+
+/* Hiển thị overlay khi active */
+.modal-overlay.active {
+  display: block;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%; /* Giữa màn hình theo chiều dọc */
+  left: 50%; /* Giữa màn hình theo chiều ngang */
+  transform: translate(-50%, -50%);
+  width: 90%; /* Chiều rộng tối đa là 90% của màn hình */
+  max-width: 450px; /* Giới hạn chiều rộng tối đa */
+  background: #fff; /* Nền trắng */
+  border-radius: 8px;
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.25); /* Đổ bóng */
+  z-index: 1000; /* Hiển thị trên các thành phần khác */
+  animation: fadeIn 0.3s ease; /* Hiệu ứng fade in */
+  overflow: hidden; /* Ẩn nội dung tràn */
+}
+
+/* Hiển thị modal khi active */
+.modal.active {
+  display: block;
+}
+
+/* Modal header */
+.modal-content h3 {
+  background: #4CAF50; /* Nền xanh lá */
+  color: #fff;
+  margin: 0;
+  padding: 15px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+}  
+
+/* Form nội dung */
+.modal-content form {
+  padding: 10px; /* Giảm padding để tiết kiệm không gian */
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* Khoảng cách nhỏ hơn giữa các mục */
+}
+
+/* Label */
+.modal-content label {
+  font-weight: bold;
+  font-size: 0.95rem; /* Font nhỏ hơn */
+  margin-bottom: 5px;
+  color: #333;
+}
+
+/* Input và Select */
+.modal-content input[type="text"],
+.modal-content select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.95rem; /* Font nhỏ hơn */
+  box-sizing: border-box;
+}
+
+.modal-content input[type="text"]:focus,
+.modal-content select:focus {
+  outline: none;
+  border-color: #4CAF50; /* Đổi màu viền khi focus */
+  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5); /* Hiệu ứng sáng */
+}
+
+/* Button */
+.modal-content button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.modal-content button[type="submit"] {
+  background: #4CAF50;
+  color: #fff;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.modal-content button[type="submit"]:hover {
+  background: #45a049; /* Hover xanh lá đậm hơn */
+}
+
+.modal-content button.close-modal {
+  background: #f44336;
+  color: #fff;
+  font-weight: bold;
+  margin-top: 10px;
+  transition: background 0.3s ease;
+}
+
+.modal-content button.close-modal:hover {
+  background: #e53935; /* Hover đỏ đậm hơn */
+}
+
+/* Placeholder styling */
+.modal-content input::placeholder {
+  color: #aaa;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal {
+    top: 50%; /* Giữ modal ở giữa màn hình */
+    transform: translate(-50%, -50%);
+    width: 95%; /* Giảm chiều rộng modal để phù hợp với màn hình nhỏ */
+    max-width: none; /* Không giới hạn chiều rộng */
+    padding: 10px; /* Thêm khoảng cách nội dung với viền modal */
+  }
+
+  .modal-content h3 {
+    font-size: 1rem; /* Tiêu đề nhỏ hơn trên thiết bị di động */
+    padding: 10px;
+  }
+}
+
+/* Hiệu ứng fadeIn */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -55%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+
+
+
+
+
+
+</style>
+</head>
+<body>
+  <%= link_to 'Trở lại trang chủ', root_path, class: 'btn btn-back'%>
+  <%= link_to 'Lịch sử mua hàng', lichsu_path, class: 'btn btn-history' %>
+  <% if @donhangs.empty? %>
+    <div class="no-orders">
+      <p>Bạn không có đơn hàng nào.</p>
+    </div>
+  <% else %>
+      <% @donhangs.each do |donhang| %>
+        <div class="order-info">
+          <!-- Address and customer info -->
+          <div class="section address">
+            <h2>Địa chỉ nhận hàng</h2>
+            <div class="row">
+              <div class="col">
+                <label for="hoten">Họ tên: <span><%= donhang.hoten %></span></label>
+              </div>
+              <div class="col">
+                <label for="sdt">Số điện thoại: <span><%= donhang.sdt %></span></label>
+              </div>
+            </div>
+            <div class="row">
+              <label for="email">Email: <span><%= donhang.email %></span></label>
+            </div>
+            <div class="row">
+              <div class="col">
+                <label for="diachi">Địa chỉ</label>
+                <span><%= donhang.diachi %></span>
+              </div>
+            </div>
+            <% if donhang.trangthai == 'Chờ xác nhận' %>
+              <button class="upbtn" data-donhang-id="<%= donhang.id %>">Cập nhật</button>
+              <button 
+                class="huybtn" 
+                data-donhang-id="<%= donhang.id %>">
+                Huỷ đơn hàng
+              </button>
+
+              <!-- Modal cập nhật thông tin -->
+              <div id="update-modal-<%= donhang.id %>" class="modal">
+                <div class="modal-content">
+                  <h3>Cập nhật thông tin đơn hàng</h3>
+                  <form method="POST" action="<%= capnhat_giaidoan_path(donhang.id) %>" class="modal-form">
+                    <input type="hidden" name="_method" value="patch">
+                    <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+
+                    <!-- Thông tin giao hàng -->
+                    <label>Họ tên:</label>
+                    <input type="text" name="hoten" value="<%= donhang.hoten %>" disabled>
+                    
+                    <label>Số điện thoại:</label>
+                    <input type="text" name="sdt" value="<%= donhang.sdt %>">
+                    
+                    <label>Email:</label>
+                    <input type="text" name="email" value="<%= donhang.email %>">
+                    <!-- Listbox chọn tỉnh/thành -->
+                    <div>
+                        <label for="province">Tỉnh/Thành phố:</label>
+                        <select id="province" name="province" required>
+                            <option value="">Chọn tỉnh/thành phố</option>
+                            
+                        </select>
+                    </div>
+
+                    <!-- Listbox chọn quận/huyện -->
+                    <div>
+                      <label for="district">Quận/Huyện:</label>
+                      <select id="district" name="district" required>
+                        <option value="">Chọn quận/huyện</option>
+                      </select>
+                    </div>
+
+                    <!-- Listbox chọn phường/xã -->
+                    <div>
+                      <label for="ward">Phường/Xã:</label>
+                      <select id="ward" name="ward" required>
+                        <option value="">Chọn phường/xã</option>
+                      </select>
+                    </div>
+
+                    <!-- Nhập địa chỉ cụ thể -->
+                    <div>
+                      <label for="address">Địa chỉ cụ thể:</label>
+                      <input type="text" id="address" name="address" placeholder="Nhập số nhà, tên đường" required class="c">
+                    </div>
+                    
+                    <!-- Submit -->
+                    <button type="submit">Lưu thay đổi</button>
+                    <button type="button" class="close-modal">Đóng</button>
+                  </form>
+                </div>
+              </div>
+
+            <% end %>
+          </div>
+
+          <!-- Product Info -->
+          <div class="section product-info">
+            <% donhang.thongtinsanpham.split(',').each do |sanpham_ten_soluong| %>
+              <div class="product-item">
+                <% match = sanpham_ten_soluong.strip.match(/(.+)\s(\d+)\s?(kg|bao|thùng)/) %>
+                <% if match %>
+                  <% sanpham_ten = match[1] %>
+                  <% soluong = match[2].to_i %>
+                  <% donvi = match[3] %>
+                  <% sanpham = Sanpham.find_by(ten: sanpham_ten) %>
+
+                  <% if sanpham %>
+                    <div class="details">
+                      <%= image_tag asset_path(sanpham.hinhanh), alt: sanpham.ten, class: 'product-image' %>
+                      <h4> <%= sanpham.ten %> </h4>
+                      <span class="price">
+                        <%= number_to_currency(sanpham.gia, unit: 'VNĐ', separator: '.', delimiter: '.', precision: 0, format: "%n %u") %>
+                      </span>
+                      <span class="quantity">Số lượng: <%= soluong %> <%= donvi %></span>
+                      <span class="total">
+                        Tổng: <%= number_to_currency(sanpham.gia * soluong, unit: 'VNĐ', separator: '.', delimiter: '.', precision: 0, format: "%n %u") %>
+                      </span>
+                    </div>
+                  <% else %>
+                    <span>Sản phẩm không tìm thấy.</span>
+                  <% end %>
+                <% else %>
+                  <span>Thông tin sản phẩm không hợp lệ.</span>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="section order-summary">
+            <label for="tongthanhtoan" class="tong">Tổng thanh toán (Kèm phí vận chuyển)</label>
+            <span class="tra" style="color: <%= donhang.trangthaithanhtoan == 'Đã thanh toán' ? 'green' : 'red' %>;">
+              <%= donhang.trangthaithanhtoan %>
+            </span>
+            <span class="giatong">
+              <%= number_to_currency(donhang.tongthanhtoan, unit: 'VNĐ', separator: '.', delimiter: '.', precision: 0, format: "%n %u") %>
+            </span>
+          </div>
+
+          <!-- Order Status -->
+          <div class="section order-status">
+            <label for="trangthai" class="a">Trạng thái</label>
+            <span class="a"><%= donhang.trangthai || "Chờ xác nhận" %></span>
+          </div>
+
+          <div class="delivery-status">
+            <h3>Ngày giao hàng dự kiến:</h3>
+            <div class="status-bar">
+              <div class="status-item <%= donhang.trangthai == 'Chờ xác nhận' ? 'active' : (donhang.trangthai == 'Chờ xác nhận' ? 'completed' : '') %>">
+                <span class="status-icon">⦿</span>
+                <span class="status-text">Chờ xác nhận</span>
+              </div>
+              <div class="status-item <%= donhang.trangthai == 'Đã xác nhận' ? 'active' : (donhang.trangthai == 'Đã xác nhận' ? 'completed' : '') %>">
+                <span class="status-icon">⦿</span>
+                <span class="status-text">Đã xác nhận</span>
+              </div>
+              <div class="status-item <%= donhang.trangthai == 'Đang vận chuyển' ? 'active' : (donhang.trangthai == 'Đang vận chuyển' ? 'completed' : '') %>">
+                <span class="status-icon">⦿</span>
+                <span class="status-text">Đang vận chuyển</span>
+              </div>
+              <div class="status-item <%= donhang.trangthai == 'Đang trên đường giao đến bạn' ? 'active' : (donhang.trangthai == 'Sắp đến' ? 'completed' : '') %>">
+                <span class="status-icon">⦿</span>
+                <span class="status-text">Đang trên đường giao đến bạn</span>
+              </div>
+              <div class="status-item <%= donhang.trangthai == 'Đã giao hàng' ? 'active' : (donhang.trangthai == 'Đã đến' ? 'completed' : '') %>">
+                <span class="status-icon">⦿</span>
+                <span class="status-text">Đã giao hàng</span>
+              </div>
+
+
+            </div>
+          </div>
+          <div class="button-container">
+            <button 
+              class="received-button" 
+              style="<%= donhang.trangthai == 'Đã đến' ? '' : 'display: none;' %>"
+              data-donhang-id="<%= donhang.id %>">
+              Đã nhận được đơn hàng
+            </button>
+          </div>
+
+
+      </div>
+      <% end %>
+    <% end %>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+  <script src="<%= asset_path 'apiprovince.js' %>"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.received-button').forEach(function (button) {
+      button.addEventListener('click', function () {
+        const donhangId = this.dataset.donhangId; // Lấy ID đơn hàng từ data attribute
+        
+        // Gửi AJAX request đến server
+        fetch(`/giaidoan/${donhangId}/update_trangthai`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+          },
+          body: JSON.stringify({ trangthai: 'Đã nhận' }),
+        })
+          .then(response => {
+            if (response.ok) {
+              alert('CẢM ƠN QUÝ KHÁCH ĐÃ MUA HÀNG!!!');
+              // Ẩn nút sau khi cập nhật thành công
+              this.style.display = 'none';
+              // Làm mới trang (reload)
+              location.reload();
+            } else {
+              alert('Đã xảy ra lỗi khi cập nhật trạng thái.');
+            }
+          })
+          .catch(error => {
+            console.error('Lỗi:', error);
+            alert('Đã xảy ra lỗi khi kết nối đến server.');
+          });
+      });
+    });
+  });
+
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.huybtn').forEach(function (button) {
+      button.addEventListener('click', function () {
+        const donhangId = this.dataset.donhangId; // Lấy ID đơn hàng từ data attribute
+        
+        // Hiển thị thông báo xác nhận
+        if (confirm('Bạn có chắc chắn muốn huỷ đơn hàng này không?')) {
+          // Gửi AJAX request đến server
+          fetch(`/giaidoan/${donhangId}/huydonhang`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+            },
+            body: JSON.stringify({ trangthai: 'Đã huỷ' }),
+          })
+            .then(response => {
+              if (response.ok) {
+                alert('Đã gửi thông báo huỷ đơn hàng!.');
+                // Làm mới trang sau khi huỷ
+                location.reload();
+              } else {
+                alert('Đã xảy ra lỗi khi huỷ đơn hàng.');
+              }
+            })
+            .catch(error => {
+              console.error('Lỗi:', error);
+              alert('Đã xảy ra lỗi khi kết nối đến server.');
+            });
+        }
+      });
+    });
+  });
+
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.upbtn').forEach(function (button) {
+      button.addEventListener('click', function () {
+        const donhangId = this.dataset.donhangId;
+        const modal = document.getElementById(`update-modal-${donhangId}`);
+        if (modal) {
+          modal.style.display = 'block';
+        }
+      });
+    });
+
+    document.querySelectorAll('.close-modal').forEach(function (button) {
+      button.addEventListener('click', function () {
+        const modal = this.closest('.modal');
+        if (modal) {
+          modal.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  
+  document.querySelectorAll('.modal form').forEach(function (form) {
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const formData = new FormData(form);
+      const formAction = form.action; // Lấy URL action từ form
+      const donhangId = formAction.split('/').slice(-2, -1)[0]; // Lấy ID từ URL
+
+      fetch(formAction, {
+        method: 'PATCH',
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        },
+        body: formData,
+      })
+        .then(response => {
+          if (response.ok) {
+            alert('Cập nhật thông tin thành công!');
+            location.reload(); // Làm mới trang
+          } else {
+            alert('Đã xảy ra lỗi khi cập nhật thông tin.');
+          }
+        })
+        .catch(error => {
+          console.error('Lỗi:', error);
+          alert('Không thể kết nối đến máy chủ.');
+        });
+    });
+  });
+
+
+
+
+ 
+
+
+
+
+
+</script>
+</body>
+</html>

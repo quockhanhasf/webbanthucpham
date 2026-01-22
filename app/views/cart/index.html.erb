@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giỏ hàng</title>
+  <%= csrf_meta_tags %>
+  <%= stylesheet_link_tag 'cart', media: 'all' %>
+</head>
+<body>
+  
+  <div class="cart-container">
+  <h1>Giỏ hàng của bạn</h1>
+
+  <% if current_user.giohang.present? && !JSON.parse(current_user.giohang).empty? %>
+    <% cart = JSON.parse(current_user.giohang) %>
+    <% total_price = 0 %> <!-- Biến lưu tổng giá trị đơn hàng -->
+    <table>
+      <thead>
+        <tr>
+          <th class="select-all"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
+          <th class="sp">Sản phẩm</th>
+          <th class="sl">Số lượng</th>
+          <th class="giac">Giá</th>
+          <th class="giac"></th>
+        </tr>
+      </thead>
+    <tbody>
+      <% cart.each do |product_name, quantity| %>
+        <% product = Sanpham.find_by(ten: product_name) %>
+        <% product_price = (product.gia * quantity).round(2) %> <!-- Tính giá từng sản phẩm -->
+        <% total_price += product_price %> <!-- Cộng vào tổng giá -->
+
+        <tr>
+          <td class="select-product">
+            <input type="checkbox" class="product-checkbox" data-product="<%= product_name %>">
+          </td>
+          <td>
+            <div class="product-info">
+              <img src="<%= asset_path(product.hinhanh) %>" alt="<%= product_name %>" class="product-image">
+              <span><%= product_name %></span>
+            </div>
+          </td>
+          <td class="sl">
+            <% don_vi = product.donvi %> <!-- Lấy đơn vị của sản phẩm -->
+            <% max_quantity = product.soluong %> <!-- Lấy số lượng tối đa từ bảng Sanpham -->
+            <span class="kg"><%= "#{quantity.to_i} #{don_vi}" %></span>
+          </td>
+          <td class="giac">
+            <span class="price">
+              <%= CurrencyFormatter.format_vnd(product_price) %>
+            </span>
+          </td>
+          <td class="giac">
+            <div class="quantity-actions">
+              <button type="button" 
+                  class="update-btn" 
+                  data-product="<%= product_name %>" 
+                  data-quantity="<%= quantity %>"
+                  data-max-quantity="<%= max_quantity %>"
+                  data-image="<%= asset_path(product.hinhanh) %>"
+                  data-unit="<%= product.donvi %>"
+                  onclick="openUpdateModal(this)">↺
+              </button>
+              <button type="button" class="remove-btn" data-product="<%= product_name %>" title="Xóa">
+                🗑️
+              </button>
+            </div>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+
+      <tfoot>
+        <tr>
+          <td colspan="3" class="total-label">Tổng cộng:</td>
+          <td class="total-price">
+            <%= CurrencyFormatter.format_vnd(total_price) %>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  <% else %>
+    <p class="empty-cart">Giỏ hàng của bạn hiện đang trống.</p>
+  <% end %>
+
+  <!-- Hiển thị nút đặt hàng nếu giỏ hàng không trống -->
+  <% if current_user.giohang.present? && !JSON.parse(current_user.giohang).empty? %>
+    <button class="order-button" type="button" onclick="redirectToOrderPage()">🛒 Đặt hàng</button>
+  <% else %>
+    <button class="order-button" type="button" disabled>🛒 Giỏ hàng trống</button>
+  <% end %>
+
+
+</div>
+
+
+ <!-- Modal "Cập nhật sản phẩm" -->
+<div id="updateProductModal" class="modal" style="display: none;">
+  <div class="modal-contentt">
+    <span class="close-button" onclick="closeUpdateProductModal()">×</span>
+    <!-- Hiển thị sản phẩm được chọn -->
+    <div id="updateProductPreview">
+      <img id="updateProductImage" src="" alt="Sản phẩm" class="product-image">
+      <h3 id="updateProductName"></h3>
+    </div>
+    <p id="stockInfo" style="text-align: center; font-weight: bold; color: #333;"></p>
+    <!-- Thanh trượt chỉnh sửa số lượng -->
+    <p>Chọn số lượng sản phẩm bạn muốn cập nhật:</p>
+    <input type="range" id="updateQuantitySlider" min="1" max="20" step="1" value="1" oninput="updateUpdateQuantityDisplay(this.value)" data-unit="kg">
+    <p>Số lượng: <span id="updateQuantityDisplay">1 kg</span></p>
+    <%= button_tag 'Xác nhận', class: 'btn btn-primary confirm-btn', onclick: "confirmUpdateProduct()" %>
+  </div>
+</div>
+
+
+
+<script>  
+  function redirectToOrderPage() {
+    const selectedProducts = getSelectedProducts();
+
+    if (selectedProducts.length === 0) {
+        alert('Vui lòng chọn ít nhất một sản phẩm để đặt hàng.');
+        return;
+    }
+
+    // Gửi danh sách sản phẩm đã chọn qua AJAX để lưu vào session
+    fetch('/set_selected_products', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        },
+        body: JSON.stringify({ selected_products: selectedProducts }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Chuyển hướng đến trang đặt hàng
+            window.location.href = '/order';
+        } else {
+            alert('Có lỗi xảy ra khi lưu danh sách sản phẩm.');
+        }
+    })
+    .catch(error => {
+        console.error('Lỗi:', error);
+        alert('Không thể thực hiện yêu cầu.');
+    });
+}
+
+
+  function getSelectedProducts() {
+    const selectedProducts = [];
+    const productCheckboxes = document.querySelectorAll(".product-checkbox:checked");
+    productCheckboxes.forEach((checkbox) => {
+      const productName = checkbox.getAttribute("data-product");
+      selectedProducts.push(productName);
+    });
+    return selectedProducts;
+  }
+
+
+
+
+
+///////////
+  function toggleSelectAll(selectAllCheckbox) {
+     // Lấy tất cả các checkbox con
+    const checkboxes = document.querySelectorAll(".product-checkbox");
+    // Cập nhật trạng thái của tất cả các checkbox con dựa trên trạng thái của "Chọn tất cả"
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = selectAllCheckbox.checked;
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // Lấy tất cả checkbox con và checkbox "Chọn tất cả"
+    const selectAllCheckbox = document.getElementById("selectAll");
+    const checkboxes = document.querySelectorAll(".product-checkbox");
+
+    // Gán sự kiện thay đổi cho tất cả checkbox con
+    checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", () => {
+        // Kiểm tra nếu tất cả checkbox con đều được chọn
+        const allChecked = Array.from(checkboxes).every((cb) => cb.checked);
+        // Nếu tất cả đều được chọn, "Chọn tất cả" cũng được chọn
+        selectAllCheckbox.checked = allChecked;
+        // Nếu có bất kỳ checkbox con nào bị bỏ chọn, bỏ chọn "Chọn tất cả"
+        if (!checkbox.checked) {
+          selectAllCheckbox.checked = false;
+        }
+      });
+    });
+  });
+
+
+
+
+
+
+  
+  document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".remove-btn").forEach((button) => {
+    button.addEventListener("click", function () {
+      const productName = this.getAttribute("data-product");
+
+      // Hiển thị thông báo xác nhận
+      const confirmDelete = confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${productName}" khỏi giỏ hàng không?`);
+
+      if (confirmDelete) {
+        // Gửi yêu cầu xóa sản phẩm nếu người dùng xác nhận
+        fetch("/cart/remove_from_cart", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").getAttribute("content")
+          },
+          body: JSON.stringify({ product_name: productName })
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              // Cập nhật giao diện giỏ hàng
+              alert("Sản phẩm đã được xóa khỏi giỏ hàng!");
+              location.reload(); // Refresh trang để hiển thị giỏ hàng mới
+            } else {
+              alert(data.error || "Có lỗi xảy ra khi xóa sản phẩm.");
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Có lỗi xảy ra khi kết nối với máy chủ.");
+          });
+      }
+    });
+  });
+});
+
+
+  function openUpdateModal(button) {
+    const productName = button.getAttribute("data-product");
+    const productImage = button.getAttribute("data-image");
+    const currentQuantity =parseInt(button.getAttribute("data-quantity"));
+    const maxQuantity = parseInt(button.getAttribute("data-max-quantity")); // Lấy số lượng tối đa
+    const productUnit = button.getAttribute("data-unit"); // Lấy đơn vị sản phẩm
+
+    // Cập nhật nội dung modal
+    document.getElementById("updateProductName").textContent = productName;
+    document.getElementById("updateProductImage").src = productImage;
+    document.getElementById("updateQuantitySlider").value = currentQuantity;
+    document.getElementById("updateQuantitySlider").max = maxQuantity; // Đặt giá trị tối đa cho slider
+    document.getElementById("updateQuantityDisplay").textContent = `${currentQuantity} ${productUnit}`; // Hiển thị số lượng và đơn vị
+
+    // Lưu đơn vị vào thuộc tính của slider để sử dụng khi cập nhật
+    document.getElementById("updateQuantitySlider").setAttribute("data-unit", productUnit);
+    document.getElementById("stockInfo").textContent = `Số lượng có sẵn: ${maxQuantity} ${productUnit}`; 
+
+
+    // Hiển thị modal
+    document.getElementById("updateProductModal").style.display = "block";
+  }
+
+
+  // Đóng modal cập nhật sản phẩm
+  function closeUpdateProductModal() {
+    document.getElementById("updateProductModal").style.display = "none";
+  }
+
+  // Cập nhật số lượng hiển thị khi kéo slider
+  function updateUpdateQuantityDisplay(value) {
+    const productUnit = document.getElementById("updateQuantitySlider").getAttribute("data-unit"); // Lấy đơn vị sản phẩm
+    const roundedValue = parseInt(value); // Chuyển đổi số lượng thành số nguyên
+    document.getElementById("updateQuantityDisplay").textContent = `${roundedValue} ${productUnit}`;
+  }
+
+
+  // Xác nhận cập nhật sản phẩm
+  function confirmUpdateProduct() {
+    const productName = document.getElementById("updateProductName").textContent;
+    const newQuantity = document.getElementById("updateQuantitySlider").value;
+
+    fetch("/cart/update_cart", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": document.querySelector("meta[name='csrf-token']").getAttribute("content")
+      },
+      body: JSON.stringify({ product_name: productName, quantity: newQuantity })
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert("Sản phẩm đã được cập nhật!");
+          location.reload(); // Làm mới trang để hiển thị giỏ hàng mới
+        } else {
+          alert(data.error || "Có lỗi xảy ra khi cập nhật sản phẩm.");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Có lỗi xảy ra khi kết nối với máy chủ.");
+      });
+
+    closeUpdateProductModal(); // Đóng modal
+  }
+
+  
+
+
+</script>
+
+</body>
+</html>

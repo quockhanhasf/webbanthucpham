@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lịch sử mua hàng</title>
+  <%= csrf_meta_tags %>
+  <%= stylesheet_link_tag '', media: 'all' %>
+  <style>
+    /* Reset margins and paddings */
+    body, h1, h3, p, ul, li {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f5f5;
+      color: #333;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      color: #444;
+      margin-bottom: 20px;
+    }
+
+    .btn-primary {
+      display: inline-block;
+    text-decoration: none;
+    color: white;
+    background-color: #4CAF50; /* Màu xanh lá nhẹ */
+    padding: 12px 24px; /* Tăng kích thước padding */
+    border-radius: 8px; /* Bo tròn nút thêm mềm mại */
+    font-weight: 600; /* Font chữ đậm */
+    font-size: 16px; /* Kích thước chữ lớn hơn */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Hiệu ứng đổ bóng nhẹ */
+    margin: 10px 0; /* Căn chỉnh khoảng cách */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Hiệu ứng chuyển đổi */
+    }
+
+    .btn-primary:hover {
+      background-color:rgb(58, 130, 62); /* Màu xanh lá đậm hơn khi hover */
+    transform: translateY(-2px); /* Hiệu ứng nổi nhẹ khi hover */
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .order-history {
+      border: 1px solid #ddd;
+      padding: 20px;
+      margin: 15px auto;
+      border-radius: 8px;
+      background-color: white;
+      max-width: 800px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .order-history h3 {
+      color: #007bff;
+      margin-bottom: 10px;
+    }
+
+    .order-history p {
+      margin: 5px 0;
+    }
+
+    ul {
+      list-style-type: none;
+      margin-top: 10px;
+    }
+
+    .product-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .product-image {
+      width: 60px;
+      height: 60px;
+      border-radius: 5px;
+      object-fit: cover;
+      margin-right: 15px;
+    }
+
+    .details {
+      flex: 1;
+    }
+
+    .details h4 {
+      font-size: 1rem;
+      color: #333;
+      margin-bottom: 5px;
+    }
+
+    .details .price,
+    .details .quantity,
+    .details .total {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+
+    .details .price {
+      font-weight: bold;
+      color: #28a745;
+    }
+
+    .details .quantity {
+      font-style: italic;
+    }
+
+    .details .total {
+      font-weight: bold;
+      color: #dc3545;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #eee;
+      margin: 20px 0;
+    }
+    .total-payment {
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin: 15px auto 0 auto; /* Canh giữa phần tử */
+        color: rgb(62, 186, 139);
+        text-align: center; /* Canh giữa nội dung text */
+        display: block;
+    }
+
+
+    .no-orders {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lịch sử mua hàng</h1>
+
+  <%= link_to 'Trở lại trang chủ', root_path, class: 'btn btn-primary' %>
+
+  <% if @donhangs.any? %>
+    <% @donhangs.each do |donhang| %>
+      <div class="order-history">
+        <h3>Đơn hàng #<%= donhang.id %></h3>
+        <p>Họ tên: <%= donhang.hoten %>.</p>
+        <p>Số điện thoại: <%= donhang.sdt %>.</p>
+        <p>Email: <%= donhang.email %>.</p>
+        <p>Địa chỉ: <%= donhang.diachi %>.</p>
+        <p>Ngày đặt hàng: <%= donhang.created_at.strftime('%d/%m/%Y, vào lúc %H giờ %M phút') %>.</p>
+        
+        <!-- Hiển thị trạng thái đơn hàng -->
+        <p>
+          <strong>Trạng thái:</strong> 
+          <% if donhang.trangthai == "Đã nhận" %>
+            <span style="color: green;">Đã nhận</span>
+          <% elsif donhang.trangthai == "Huỷ đơn hàng" %>
+            <span style="color: red;">Đơn hàng bị hủy</span>
+          <% else %>
+            <span>Trạng thái không xác định</span>
+          <% end %>
+        </p>
+        
+        <h4>Sản phẩm:</h4>
+        <ul>
+          <% donhang.thongtinsanpham.split(',').each do |sanpham_ten_soluong| %>
+            <div class="product-item">
+              <% match = sanpham_ten_soluong.strip.match(/(.+)\s(\d+)\s?(kg|bao|thùng)/) %>
+              <% if match %>
+                <% sanpham_ten = match[1] %>
+                <% soluong = match[2].to_i %>
+                <% donvi = match[3] %>
+                <% sanpham = Sanpham.find_by(ten: sanpham_ten) %>
+
+                <% if sanpham %>
+                  <div class="details">
+                    <%= image_tag asset_path(sanpham.hinhanh), alt: sanpham.ten, class: 'product-image' %>
+                    <h4><%= sanpham.ten %></h4>
+                    <span class="price">
+                      <%= number_to_currency(sanpham.gia, unit: 'VNĐ', separator: '.', delimiter: '.', precision: 0, format: "%n %u") %>
+                    </span>
+                    <span class="quantity">Số lượng: <%= soluong %> <%= donvi %></span>
+                    <span class="total">
+                      Tổng: <%= number_to_currency(sanpham.gia * soluong, unit: 'VNĐ', separator: '.', delimiter: '.', precision: 0, format: "%n %u") %>
+                    </span>
+                  </div>
+                <% else %>
+                  <span>Sản phẩm không tìm thấy.</span>
+                <% end %>
+              <% else %>
+                <span>Thông tin sản phẩm không hợp lệ.</span>
+              <% end %>
+            </div>
+          <% end %>
+        </ul>
+        <p class="total-payment">Tổng thanh toán (Đã kèm phí vận chuyển): 
+          <%= number_to_currency(donhang.tongthanhtoan, unit: 'VNĐ', separator: '.', delimiter: '.', precision: 0, format: "%n %u") %>
+        </p>
+        <hr>
+      </div>
+    <% end %>
+  <% else %>
+    <p class="no-orders">Bạn chưa có đơn hàng nào đã nhận hoặc bị hủy.</p>
+  <% end %>
+
+</body>
+</html>

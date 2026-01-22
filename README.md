@@ -6,7 +6,7 @@ Cho phép hiển thị sản phẩm, quản lý giỏ hàng, đặt hàng và qu
 
 ## Công nghệ sử dụng
 - Ruby 3.3.5 (2024-09-03 revision ef084cc8f4)
-- Ruby on Rails 6/7
+- Rails 7.2.2
 - SQLite 3
 - HTML, CSS, JavaScript
 - Bootstrap / Tailwind CSS
